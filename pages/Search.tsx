@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { searchPosts } from '../services/sanity';
 import { ArticleCardSkeleton } from '../components/Skeleton';
-import { BlogPost } from '../types';
+import { BlogPost, getSlug } from '../types';
 
 export const Search: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -166,7 +166,7 @@ export const Search: React.FC = () => {
                       <span>{post.readingTime} min read</span>
                     </div>
                  </div>
-                 <Link to={`/article/${post.slug.current}`}>
+                 <Link to={`/article/${getSlug(post.slug)}`}>
                     <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors cursor-pointer font-display">
                         {post.title}
                     </h2>
@@ -180,7 +180,7 @@ export const Search: React.FC = () => {
                        <span className="text-sm text-slate-900 dark:text-white font-medium">{post.author.name}</span>
                     </div>
                     <div className="flex-1"></div>
-                    <Link to={`/article/${post.slug.current}`} className="text-primary text-sm font-semibold flex items-center gap-1 group/btn hover:underline">
+                    <Link to={`/article/${getSlug(post.slug)}`} className="text-primary text-sm font-semibold flex items-center gap-1 group/btn hover:underline">
                         Read Article
                         <span className="material-symbols-outlined text-[16px] group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
                     </Link>

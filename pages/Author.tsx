@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getAuthorBySlug, getPostsByAuthorId } from '../services/sanity';
 import { AuthorProfileSkeleton } from '../components/Skeleton';
-import { Author as AuthorType, BlogPost } from '../types';
+import { Author as AuthorType, BlogPost, getSlug } from '../types';
 
 // Helper to render platform icons
 const SocialIcon = ({ platform }: { platform: string }) => {
@@ -174,7 +174,7 @@ export const Author: React.FC = () => {
 
            {/* Featured Article - only show if exists */}
            {featuredPost ? (
-             <Link to={`/article/${featuredPost.slug.current}`} className="group relative flex flex-col md:flex-row gap-0 rounded-3xl bg-slate-900 dark:bg-slate-800 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
+             <Link to={`/article/${getSlug(featuredPost.slug)}`} className="group relative flex flex-col md:flex-row gap-0 rounded-3xl bg-slate-900 dark:bg-slate-800 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
                <div className="w-full md:w-5/12 h-64 md:h-auto relative overflow-hidden">
                  <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style={{backgroundImage: `url('${featuredPost.image}')`}}></div>
                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent md:hidden"></div>
@@ -208,7 +208,7 @@ export const Author: React.FC = () => {
            {/* Grid of Articles */}
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              {recentPosts.map((post, i) => (
-               <Link to={`/article/${post.slug.current}`} key={i} className="group flex flex-col gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-lg hover:-translate-y-1 h-full">
+               <Link to={`/article/${getSlug(post.slug)}`} key={i} className="group flex flex-col gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/50 transition-all cursor-pointer shadow-sm hover:shadow-lg hover:-translate-y-1 h-full">
                  <div className="w-full aspect-[16/9] rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-800 relative">
                    <div className="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{backgroundImage: `url('${post.image}')`}}></div>
                    <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>

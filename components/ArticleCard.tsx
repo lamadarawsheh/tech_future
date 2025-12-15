@@ -46,7 +46,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ post }) => {
             ))}
           </div>
           <Link 
-  to={`/article/${ articleSlug}`} 
+  to={`/article/${articleSlug}`} 
   className="block mt-2"
 >
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white line-clamp-2">

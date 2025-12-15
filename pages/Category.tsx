@@ -2,16 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getPostsByCategory } from '../services/sanity';
 import { GridCardSkeleton } from '../components/Skeleton';
-import { BlogPost } from '../types';
+import { BlogPost, getSlug } from '../types';
 import { useStore } from '../store';
 import { client } from '../lib/sanity';
 
-interface Category {
+interface CategoryData {
   _id: string;
   title: string;
-  slug: {
-    current: string;
-  };
+  slug: string;
   count: number;
 }
 
@@ -19,7 +17,7 @@ export const Category: React.FC = () => {
   const { slug } = useParams();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryData[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const { toggleAiModal } = useStore();
 
@@ -168,7 +166,7 @@ useEffect(() => {
                       })}
                     </span>
                   </div>
-                  <Link to={`/article/${post.slug?.current}`}>
+                  <Link to={`/article/${getSlug(post.slug)}`}>
                     <h3 className={`${idx === 0 ? 'text-2xl' : 'text-xl'} font-bold mb-3 text-slate-900 dark:text-white group-hover:text-primary transition-colors font-display`}>
                       {post.title}
                     </h3>
@@ -299,13 +297,13 @@ useEffect(() => {
                 {categories.map((category) => (
                   <Link 
                     key={category._id}
-                    to={`/category/${category.slug.current}`}
+                    to={`/category/${category.slug}`}
                     className={`flex items-center justify-between rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
-                      slug === category.slug.current ? 'bg-slate-50 dark:bg-slate-800' : ''
+                      slug === category.slug ? 'bg-slate-50 dark:bg-slate-800' : ''
                     }`}
                   >
                     <span className={`text-sm font-medium transition-colors ${
-                      slug === category.slug.current 
+                      slug === category.slug 
                         ? 'text-primary' 
                         : 'text-slate-600 dark:text-slate-400 hover:text-primary'
                     }`}>

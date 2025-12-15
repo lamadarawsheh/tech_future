@@ -85,7 +85,7 @@ export const Home: React.FC = () => {
                    {featuredPost.excerpt}
                 </p>
                 <div className="pt-4">
-                  <Link to={`/article/${featuredPost.slug.current}`} className="inline-flex items-center gap-3 pl-6 pr-4 py-3.5 bg-white text-slate-900 rounded-full font-bold text-sm hover:bg-slate-50 transition-all hover:pr-6 shadow-lg shadow-white/10 group-btn">
+                  <Link to={`/article/${featuredPost.slug}`} className="inline-flex items-center gap-3 pl-6 pr-4 py-3.5 bg-white text-slate-900 rounded-full font-bold text-sm hover:bg-slate-50 transition-all hover:pr-6 shadow-lg shadow-white/10 group-btn">
                       Read Full Article
                       <div className="size-6 rounded-full bg-slate-100 flex items-center justify-center transition-colors group-btn-hover:bg-primary group-btn-hover:text-white">
                          <span className="material-symbols-outlined text-[16px] text-slate-900">arrow_forward</span>

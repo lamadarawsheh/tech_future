@@ -8,36 +8,58 @@ const mapPost = (post: any): BlogPost => {
     throw new Error('No post data provided');
   }
 
+  // Normalize slug: extract string from object if needed
+  const normalizeSlug = (slug: any): string => {
+    if (!slug) return '';
+    return typeof slug === 'string' ? slug : slug.current || '';
+  };
+
   return {
     _id: post.id || post._id,
     _type: 'blogPost',
     title: post.title,
-    slug: post.slug || (post.slug?.current ? post.slug.current : ''),
+    slug: normalizeSlug(post.slug),
     excerpt: post.excerpt,
     content: post.body || post.content,
     categories: post.categories || [],
-    author: post.author ? {
-      _id: post.author.id || post.author._id,
-      name: post.author.name,
-      image: post.author.image,
-      bio: post.author.bio,
-      socialLinks: post.author.socialLinks
-    } : { name: 'Unknown', image: '' },
+    author: post.author
+      ? {
+          _id: post.author.id || post.author._id,
+          _type: 'author' as const,
+          name: post.author.name,
+          slug: normalizeSlug(post.author.slug),
+          image: post.author.image,
+          bio: post.author.bio,
+          socialLinks: post.author.socialLinks,
+        }
+      : {
+          _id: '',
+          _type: 'author' as const,
+          name: 'Unknown',
+          slug: '',
+          image: '',
+          bio: [],
+        },
     publishedDate: post.publishedDate || post._createdAt,
     updatedDate: post.updatedDate || post._updatedAt,
     image: post.image || '',
-    tags: post.tags || []
+    tags: post.tags || [],
+    readingTime: post.readingTime || 5,
+    viewCount: post.viewCount || 0,
   };
 };
 
 const mapAuthor = (a: any): Author => ({
   ...a,
-  image: a.image ? urlFor(a.image) : ''
+  image: a.image ? urlFor(a.image) : '',
 });
 
 const logError = (e: any) => {
-    console.warn("Sanity connection error. Falling back to mock data. This is usually due to CORS settings in Sanity Studio. Go to API > CORS Origins and add your domain.", e);
-}
+  console.warn(
+    'Sanity connection error. Falling back to mock data. This is usually due to CORS settings in Sanity Studio. Go to API > CORS Origins and add your domain.',
+    e
+  );
+};
 
 export const getFeaturedPost = async (): Promise<BlogPost | null> => {
   const query = `*[_type == "blogPost" && featured == true][0] {
@@ -69,7 +91,9 @@ export const getRecentPosts = async (): Promise<BlogPost[]> => {
   }
 };
 
-export const getPostsByAuthorId = async (authorId: string): Promise<BlogPost[]> => {
+export const getPostsByAuthorId = async (
+  authorId: string
+): Promise<BlogPost[]> => {
   const query = `*[_type == "blogPost" && references($authorId)] | order(publishedDate desc) {
     ...,
     author->,
@@ -95,7 +119,9 @@ export const getAuthorBySlug = async (slug: string): Promise<Author | null> => {
   }
 };
 // Add this function to your sanity.ts service file
-export const getTrendingPosts = async (limit: number = 6): Promise<BlogPost[]> => {
+export const getTrendingPosts = async (
+  limit: number = 6
+): Promise<BlogPost[]> => {
   const query = `*[_type == "blogPost"] | order(viewCount desc) [0...$limit] {
     ...,
     "id": _id,
@@ -113,7 +139,7 @@ export const getTrendingPosts = async (limit: number = 6): Promise<BlogPost[]> =
     "image": image.asset->url,
     "viewCount": coalesce(viewCount, 0)
   }`;
-  
+
   try {
     const result = await client.fetch(query, { limit });
     return result.map(mapPost);
@@ -137,7 +163,7 @@ export async function getPostsByCategory(slug: string): Promise<BlogPost[]> {
       "image": image.asset->url
     }
   }`;
-  
+
   const posts = await client.fetch(query, { slug });
   return posts;
 }
@@ -161,24 +187,30 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
       ...,
       "id": _id
     },
-    "image": mainImage.asset->url,
-    "publishedDate": _createdAt,
+    "image": coalesce(mainImage.asset->url, image.asset->url),
+    "content": coalesce(body, content),
+    "publishedDate": coalesce(publishedDate, _createdAt),
     "updatedDate": _updatedAt
   }`;
-  
+
   try {
     console.log('Fetching post with slug:', slug);
     const result = await client.fetch(query, { slug });
     console.log('Sanity response:', result);
-    
+
     if (!result) {
       console.warn('No post found for slug:', slug);
       // Check if any posts exist with this slug
-      const allPosts = await client.fetch(`*[_type == "blogPost"]{ "slug": slug.current }`);
-      console.log('All available post slugs:', allPosts.map((p: any) => p.slug));
+      const allPosts = await client.fetch(
+        `*[_type == "blogPost"]{ "slug": slug.current }`
+      );
+      console.log(
+        'All available post slugs:',
+        allPosts.map((p: any) => p.slug)
+      );
       return null;
     }
-    
+
     return mapPost(result);
   } catch (e) {
     console.error('Error in getPostBySlug:', e);
@@ -187,16 +219,16 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
 };
 
 export const searchPosts = async (term: string): Promise<BlogPost[]> => {
-    const query = `*[_type == "blogPost" && (title match $term || excerpt match $term)] {
+  const query = `*[_type == "blogPost" && (title match $term || excerpt match $term)] {
         ...,
         author->,
         categories[]->
     }`;
-    try {
-        const result = await client.fetch(query, { term: `*${term}*` });
-        return result.map(mapPost);
-    } catch (e) {
-        logError(e);
-        return mock.searchPosts(term);
-    }
-}
+  try {
+    const result = await client.fetch(query, { term: `*${term}*` });
+    return result.map(mapPost);
+  } catch (e) {
+    logError(e);
+    return mock.searchPosts(term);
+  }
+};

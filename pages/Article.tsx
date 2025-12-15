@@ -172,9 +172,13 @@ export const Article: React.FC = () => {
                 {post.author.name}
               </h3>
               {post.author.bio && (
-                <p className="text-slate-600 dark:text-slate-400 mb-4">
-                  {post.author.bio}
-                </p>
+                <div className="text-slate-600 dark:text-slate-400 mb-4">
+                  {Array.isArray(post.author.bio) ? (
+                    <PortableText content={post.author.bio} />
+                  ) : (
+                    <p>{post.author.bio}</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
