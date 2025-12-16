@@ -1,11 +1,170 @@
 // components/PortableText.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { urlFor } from '../lib/sanity';
 
 interface PortableTextProps {
   content: any[] | null | undefined;
   className?: string;
 }
+
+// Language display names and icons
+const languageConfig: Record<string, { name: string; color: string }> = {
+  javascript: { name: 'JavaScript', color: 'text-yellow-400' },
+  js: { name: 'JavaScript', color: 'text-yellow-400' },
+  typescript: { name: 'TypeScript', color: 'text-blue-400' },
+  ts: { name: 'TypeScript', color: 'text-blue-400' },
+  tsx: { name: 'TypeScript React', color: 'text-blue-400' },
+  jsx: { name: 'JavaScript React', color: 'text-yellow-400' },
+  python: { name: 'Python', color: 'text-green-400' },
+  py: { name: 'Python', color: 'text-green-400' },
+  html: { name: 'HTML', color: 'text-orange-400' },
+  css: { name: 'CSS', color: 'text-pink-400' },
+  scss: { name: 'SCSS', color: 'text-pink-400' },
+  json: { name: 'JSON', color: 'text-amber-400' },
+  bash: { name: 'Bash', color: 'text-green-300' },
+  shell: { name: 'Shell', color: 'text-green-300' },
+  sh: { name: 'Shell', color: 'text-green-300' },
+  sql: { name: 'SQL', color: 'text-cyan-400' },
+  graphql: { name: 'GraphQL', color: 'text-pink-500' },
+  yaml: { name: 'YAML', color: 'text-red-400' },
+  yml: { name: 'YAML', color: 'text-red-400' },
+  markdown: { name: 'Markdown', color: 'text-slate-300' },
+  md: { name: 'Markdown', color: 'text-slate-300' },
+  rust: { name: 'Rust', color: 'text-orange-500' },
+  go: { name: 'Go', color: 'text-cyan-400' },
+  java: { name: 'Java', color: 'text-red-400' },
+  kotlin: { name: 'Kotlin', color: 'text-purple-400' },
+  swift: { name: 'Swift', color: 'text-orange-400' },
+  php: { name: 'PHP', color: 'text-indigo-400' },
+  ruby: { name: 'Ruby', color: 'text-red-500' },
+  c: { name: 'C', color: 'text-blue-300' },
+  cpp: { name: 'C++', color: 'text-blue-400' },
+  csharp: { name: 'C#', color: 'text-purple-500' },
+  cs: { name: 'C#', color: 'text-purple-500' },
+  docker: { name: 'Dockerfile', color: 'text-blue-400' },
+  dockerfile: { name: 'Dockerfile', color: 'text-blue-400' },
+};
+
+// Code Block Component
+const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }> = ({ 
+  code, 
+  language = 'text',
+  filename 
+}) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const langConfig = languageConfig[language.toLowerCase()] || { name: language || 'Code', color: 'text-slate-400' };
+  const lines = code.split('\n');
+
+  return (
+    <div className="my-6 rounded-xl overflow-hidden bg-[#0d1117] border border-slate-700/50 shadow-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-[#161b22] border-b border-slate-700/50">
+        <div className="flex items-center gap-3">
+          {/* Traffic lights */}
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+          </div>
+          
+          {/* Language badge */}
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-semibold ${langConfig.color}`}>
+              {langConfig.name}
+            </span>
+            {filename && (
+              <>
+                <span className="text-slate-600">•</span>
+                <span className="text-xs text-slate-400 font-mono">{filename}</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Copy button */}
+        <button
+          onClick={handleCopy}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            copied
+              ? 'bg-green-500/20 text-green-400'
+              : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px]">
+            {copied ? 'check' : 'content_copy'}
+          </span>
+          <span>{copied ? 'Copied!' : 'Copy'}</span>
+        </button>
+      </div>
+
+      {/* Code content */}
+      <div className="relative overflow-x-auto">
+        <pre className="p-4 text-sm leading-relaxed">
+          <code className="block font-mono">
+            {lines.map((line, i) => (
+              <div key={i} className="table-row group">
+                {/* Line number */}
+                <span className="table-cell pr-4 text-right text-slate-600 select-none w-[3ch] text-xs">
+                  {i + 1}
+                </span>
+                {/* Line content */}
+                <span className="table-cell text-slate-200 group-hover:bg-slate-800/30 pl-4 -ml-4 w-full">
+                  {highlightSyntax(line, language)}
+                </span>
+              </div>
+            ))}
+          </code>
+        </pre>
+      </div>
+
+      {/* Footer with line count */}
+      <div className="px-4 py-2 bg-[#161b22] border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-500">
+        <span>{lines.length} lines</span>
+        <span className="flex items-center gap-1">
+          <span className="material-symbols-outlined text-[14px]">code</span>
+          {langConfig.name}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// Basic syntax highlighting (can be enhanced with a proper library)
+const highlightSyntax = (line: string, language: string): React.ReactNode => {
+  // Keywords for different languages
+  const jsKeywords = /\b(const|let|var|function|return|if|else|for|while|class|import|export|from|default|async|await|try|catch|throw|new|this|super|extends|implements|interface|type|enum|null|undefined|true|false)\b/g;
+  const pythonKeywords = /\b(def|class|import|from|return|if|elif|else|for|while|try|except|finally|with|as|lambda|yield|None|True|False|and|or|not|in|is)\b/g;
+  
+  // Strings
+  const strings = /(["'`])(?:(?!\1)[^\\]|\\.)*\1/g;
+  
+  // Comments
+  const comments = /(\/\/.*$|\/\*[\s\S]*?\*\/|#.*$)/gm;
+  
+  // Numbers
+  const numbers = /\b(\d+\.?\d*)\b/g;
+  
+  // Functions
+  const functions = /\b([a-zA-Z_]\w*)\s*(?=\()/g;
+
+  let result = line;
+  
+  // This is a simplified highlighter - for production, use Prism.js or highlight.js
+  // For now, we'll just return the plain text with some basic highlighting via CSS
+  
+  return <span>{line || ' '}</span>;
+};
 
 export const PortableText: React.FC<PortableTextProps> = ({ content, className = '' }) => {
   if (!content || !Array.isArray(content) || content.length === 0) {
@@ -25,7 +184,16 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
           if (child.marks?.includes('strong')) className += 'font-bold ';
           if (child.marks?.includes('em')) className += 'italic ';
           if (child.marks?.includes('underline')) className += 'underline ';
-          if (child.marks?.includes('code')) className += 'font-mono bg-slate-100 dark:bg-slate-800 px-1 rounded';
+          if (child.marks?.includes('code')) {
+            return (
+              <code 
+                key={i} 
+                className="font-mono text-sm bg-slate-100 dark:bg-slate-800 text-primary px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700"
+              >
+                {child.text}
+              </code>
+            );
+          }
 
           return (
             <span key={i} className={className || undefined}>
@@ -46,9 +214,14 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
         case 'h4':
           return <h4 key={index} className="text-xl font-bold my-3 text-slate-900 dark:text-white">{renderedChildren}</h4>;
         case 'blockquote':
-          return <blockquote key={index} className="border-l-4 border-primary pl-4 italic text-slate-700 dark:text-slate-300 my-6 text-lg bg-slate-50 dark:bg-slate-800/50 py-2 pr-2 rounded-r">
+          return (
+            <blockquote key={index} className="relative border-l-4 border-primary pl-6 py-4 my-6 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-800/50 dark:to-transparent rounded-r-xl">
+              <span className="absolute -left-3 -top-2 text-4xl text-primary/30 font-serif">"</span>
+              <div className="italic text-slate-700 dark:text-slate-300 text-lg">
             {renderedChildren}
-          </blockquote>;
+              </div>
+            </blockquote>
+          );
         default:
           if (listItem === 'bullet') {
             return <li key={index} className="ml-6 list-disc text-slate-700 dark:text-slate-300 mb-2">{renderedChildren}</li>;
@@ -67,28 +240,33 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
     .url() || '';
   
   return (
-    <div key={index} className="my-8 rounded-xl overflow-hidden">
+        <figure key={index} className="my-8">
+          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-lg">
       <img 
         src={imageUrl} 
         alt={node.alt || 'Article image'} 
         className="w-full h-auto object-cover max-h-[500px] mx-auto"
         loading="lazy"
       />
+          </div>
       {node.caption && (
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-2">
+            <figcaption className="text-center text-sm text-slate-500 dark:text-slate-400 mt-3 italic">
           {node.caption}
-        </p>
+            </figcaption>
       )}
-    </div>
+        </figure>
   );
 }
 
     // Handle code blocks
     if (node._type === 'code') {
       return (
-        <pre key={index} className="bg-slate-900 text-slate-200 p-4 rounded-lg overflow-x-auto my-6 font-mono text-sm border border-slate-700">
-          <code>{node.code}</code>
-        </pre>
+        <CodeBlock 
+          key={index}
+          code={node.code || ''}
+          language={node.language}
+          filename={node.filename}
+        />
       );
     }
 

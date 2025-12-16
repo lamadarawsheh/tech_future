@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { AuthModal } from '../components/AuthModal';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Newsletter: React.FC = () => {
-  const [subscribed, setSubscribed] = useState(false);
-  
-  const handleSubscribe = (e: React.FormEvent) => {
-      e.preventDefault();
-      setSubscribed(true);
-      setTimeout(() => setSubscribed(false), 5000);
-  }
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { user, subscriber } = useAuth();
+  const isAuthenticated = !!user && !!subscriber;
 
   return (
     <div className="flex flex-col gap-16">
@@ -24,16 +23,39 @@ export const Newsletter: React.FC = () => {
               </h2>
             </div>
             <div className="flex flex-col gap-3 w-full max-w-[520px]">
-              <form onSubmit={handleSubscribe} className="group flex flex-col sm:flex-row w-full gap-2 sm:gap-0 sm:items-stretch sm:rounded-lg sm:bg-white sm:dark:bg-slate-800 sm:p-1 sm:shadow-lg sm:border sm:border-slate-200 sm:dark:border-transparent transition-all focus-within:ring-2 focus-within:ring-primary/50">
+              {isAuthenticated ? (
+                // Already subscribed state
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-green-800 dark:text-green-300">You're subscribed!</p>
+                      <p className="text-sm text-green-600 dark:text-green-400">
+                        Signed in as {user?.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Subscribe form
+                <div className="group flex flex-col sm:flex-row w-full gap-2 sm:gap-0 sm:items-stretch sm:rounded-lg sm:bg-white sm:dark:bg-slate-800 sm:p-1 sm:shadow-lg sm:border sm:border-slate-200 sm:dark:border-transparent transition-all focus-within:ring-2 focus-within:ring-primary/50">
                 <div className="flex items-center pl-3 text-slate-400 dark:text-slate-500 sm:bg-transparent">
                   <span className="material-symbols-outlined">mail</span>
+                  </div>
+                  <div className="flex-1 bg-white dark:bg-slate-800 sm:bg-transparent border border-slate-300 dark:border-slate-800 sm:border-none text-slate-500 dark:text-slate-400 h-12 px-3 rounded-lg sm:rounded-none flex items-center text-base">
+                    Click to subscribe with email
+                  </div>
+                  <button 
+                    onClick={() => setShowAuthModal(true)}
+                    className="bg-primary hover:bg-primary-dark text-white font-bold h-12 px-6 rounded-lg transition-all transform active:scale-95 shadow-md shadow-primary/20 whitespace-nowrap flex items-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">magic_button</span>
+                    Subscribe Now
+                  </button>
                 </div>
-                <input required className="flex-1 bg-white dark:bg-slate-800 sm:bg-transparent border border-slate-300 dark:border-slate-800 sm:border-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 h-12 px-3 rounded-lg sm:rounded-none focus:ring-0 text-base" placeholder="Enter your email address" type="email"/>
-                <button type="submit" className="bg-primary hover:bg-primary-dark text-white font-bold h-12 px-6 rounded-lg transition-all transform active:scale-95 shadow-md shadow-primary/20 whitespace-nowrap">
-                   {subscribed ? "Subscribed!" : "Subscribe Now"}
-                </button>
-              </form>
-              {subscribed && <p className="text-green-500 text-sm font-bold animate-fadeIn">Thanks for subscribing!</p>}
+              )}
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-2">
                 <div className="flex -space-x-3 overflow-hidden p-1">
                   {[
@@ -43,7 +65,7 @@ export const Newsletter: React.FC = () => {
                   ].map((src, i) => (
                     <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 bg-cover bg-center" style={{backgroundImage: `url('${src}')`}}></div>
                   ))}
-                  <div className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-600 dark:text-white border border-slate-200 dark:border-transparent">
+                  <div className="inline-flex h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 bg-slate-100 dark:bg-slate-800 items-center justify-center text-[10px] font-bold text-slate-600 dark:text-white border border-slate-200 dark:border-transparent">
                      +2k
                   </div>
                 </div>
@@ -87,10 +109,10 @@ export const Newsletter: React.FC = () => {
             <h3 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white font-display">What you missed last week</h3>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Catch up on our most popular newsletters.</p>
           </div>
-          <a href="#" className="text-primary hover:text-primary/80 text-sm font-bold flex items-center gap-1 group">
+          <Link to="/archive" className="text-primary hover:text-primary/80 text-sm font-bold flex items-center gap-1 group">
              View Archive 
              <span className="material-symbols-outlined text-[16px] transition-transform group-hover:translate-x-1">arrow_forward</span>
-          </a>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
@@ -120,6 +142,9 @@ export const Newsletter: React.FC = () => {
           ))}
         </div>
       </section>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 };

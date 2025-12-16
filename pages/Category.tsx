@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getPostsByCategory } from '../services/sanity';
+import { getPostsByCategory, getCategoryPostsCount } from '../services/sanity';
 import { GridCardSkeleton } from '../components/Skeleton';
 import { BlogPost, getSlug } from '../types';
 import { useStore } from '../store';
@@ -13,10 +13,14 @@ interface CategoryData {
   count: number;
 }
 
+const POSTS_PER_PAGE = 6;
+
 export const Category: React.FC = () => {
   const { slug } = useParams();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalPosts, setTotalPosts] = useState(0);
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const { toggleAiModal } = useStore();
@@ -26,9 +30,13 @@ export const Category: React.FC = () => {
       if (slug) {
         try {
           console.log('Fetching posts for category slug:', slug);
-          const data = await getPostsByCategory(slug);
+          const [data, total] = await Promise.all([
+            getPostsByCategory(slug, POSTS_PER_PAGE, 0),
+            getCategoryPostsCount(slug)
+          ]);
           console.log('Received posts data:', data);
           setPosts(data);
+          setTotalPosts(total);
         } catch (error) {
           console.error('Error fetching posts:', error);
         }
@@ -37,6 +45,21 @@ export const Category: React.FC = () => {
     };
     fetchData();
   }, [slug]);
+
+  const loadMorePosts = async () => {
+    if (!slug) return;
+    setLoadingMore(true);
+    try {
+      const morePosts = await getPostsByCategory(slug, POSTS_PER_PAGE, posts.length);
+      setPosts(prev => [...prev, ...morePosts]);
+    } catch (error) {
+      console.error('Error loading more posts:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const hasMorePosts = posts.length < totalPosts;
 
 useEffect(() => {
   const fetchCategories = async () => {
@@ -197,13 +220,32 @@ useEffect(() => {
             )}
           </div>
 
-          {posts.length > 0 && (
+          {hasMorePosts && (
             <div className="flex flex-col items-center">
-              <button className="w-full md:w-auto min-w-[200px] flex items-center justify-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-800 text-white px-6 py-3 font-bold hover:bg-primary transition-colors group shadow-lg">
-                Load More Articles
-                <span className="material-symbols-outlined group-hover:translate-y-1 transition-transform">expand_more</span>
+              <button 
+                onClick={loadMorePosts}
+                disabled={loadingMore}
+                className="w-full md:w-auto min-w-[200px] flex items-center justify-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-800 text-white px-6 py-3 font-bold hover:bg-primary transition-colors group shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loadingMore ? (
+                  <>
+                    <span className="animate-spin">⏳</span>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    Load More Articles
+                    <span className="material-symbols-outlined group-hover:translate-y-1 transition-transform">expand_more</span>
+                  </>
+                )}
               </button>
             </div>
+          )}
+          
+          {!hasMorePosts && posts.length > 0 && (
+            <p className="text-center text-slate-500 dark:text-slate-400 mt-6">
+              You've seen all posts in this category! 🎉
+            </p>
           )}
         </div>
 

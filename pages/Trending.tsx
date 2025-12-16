@@ -1,22 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getTrendingPosts } from '../services/sanity';
+import { getTrendingPostsByTime, TrendingTimeFilter } from '../services/sanity';
 import { BlogPost } from '../types';
 import { GridCardSkeleton } from '../components/Skeleton';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthModal } from '../components/AuthModal';
 
 function getSlug(slug: string | { current: string } | undefined): string {
   if (!slug) return '';
   return typeof slug === 'string' ? slug : slug.current || '';
 }
 
+const POSTS_PER_PAGE = 12;
+
+const timeFilters: { key: TrendingTimeFilter; label: string }[] = [
+  { key: 'today', label: 'Today' },
+  { key: 'week', label: 'This Week' },
+  { key: 'month', label: 'This Month' },
+  { key: 'all', label: 'All Time' },
+];
+
 export const Trending: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<TrendingTimeFilter>('week');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [topicSuggestion, setTopicSuggestion] = useState('');
+  const [suggestionEmail, setSuggestionEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const { user } = useAuth();
+
+  const handleSuggestTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topicSuggestion.trim()) return;
+    
+    setSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSubmitting(false);
+    setSubmitted(true);
+    
+    setTimeout(() => {
+      setShowSuggestModal(false);
+      setSubmitted(false);
+      setTopicSuggestion('');
+      setSuggestionEmail('');
+    }, 2000);
+  };
 
   useEffect(() => {
     const fetchTrending = async () => {
+      setLoading(true);
       try {
-        const data = await getTrendingPosts(6); // Get top 6 trending posts
+        const data = await getTrendingPostsByTime(activeFilter, POSTS_PER_PAGE);
         setPosts(data);
       } catch (error) {
         console.error('Error fetching trending posts:', error);
@@ -26,7 +63,7 @@ export const Trending: React.FC = () => {
     };
     
     fetchTrending();
-  }, []);
+  }, [activeFilter]);
 
   if (loading) {
       return (
@@ -52,18 +89,19 @@ export const Trending: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-            <button className="flex h-9 shrink-0 items-center justify-center px-4 rounded-full bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors cursor-pointer">
-              <span className="text-sm font-medium">This Week</span>
+            {timeFilters.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveFilter(key)}
+                className={`flex h-9 shrink-0 items-center justify-center px-4 rounded-full transition-colors cursor-pointer ${
+                  activeFilter === key
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary-dark'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-transparent'
+                }`}
+              >
+                <span className="text-sm font-medium">{label}</span>
             </button>
-            <button className="flex h-9 shrink-0 items-center justify-center px-4 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-transparent">
-              <span className="text-sm font-medium">Today</span>
-            </button>
-            <button className="flex h-9 shrink-0 items-center justify-center px-4 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-transparent">
-              <span className="text-sm font-medium">This Month</span>
-            </button>
-            <button className="flex h-9 shrink-0 items-center justify-center px-4 rounded-full bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-transparent">
-              <span className="text-sm font-medium">All Time</span>
-            </button>
+            ))}
           </div>
         </div>
       </div>
@@ -135,23 +173,149 @@ export const Trending: React.FC = () => {
                 <p className="text-slate-400 text-base">Get the top 5 stories of the week delivered straight to your inbox every Friday.</p>
              </div>
              <div className="flex w-full md:w-1/2 max-w-md">
-                <form className="flex w-full gap-3 flex-col sm:flex-row" onSubmit={e => e.preventDefault()}>
-                   <input className="flex-1 h-12 rounded-lg bg-slate-800 border-transparent focus:border-primary focus:ring-0 text-white placeholder:text-slate-400 px-4" placeholder="Enter your email" type="email"/>
-                   <button className="h-12 px-6 rounded-lg bg-primary hover:bg-primary-dark text-white font-bold transition-colors whitespace-nowrap">
-                      Subscribe
+                {user ? (
+                  <div className="flex items-center gap-3 p-4 bg-green-900/30 rounded-lg border border-green-800 w-full">
+                    <span className="material-symbols-outlined text-green-400">check_circle</span>
+                    <div>
+                      <p className="text-white font-medium">You're subscribed!</p>
+                      <p className="text-sm text-green-400">{user.email}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex w-full gap-3 flex-col sm:flex-row">
+                    <button 
+                      onClick={() => setShowAuthModal(true)}
+                      className="flex-1 h-12 px-6 rounded-lg bg-primary hover:bg-primary-dark text-white font-bold transition-colors whitespace-nowrap flex items-center justify-center gap-2"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">mail</span>
+                      Subscribe Now
                    </button>
-                </form>
+                  </div>
+                )}
              </div>
            </div>
         </div>
       </section>
 
-      <div className="flex justify-center pt-8 pb-4">
-        <button className="flex items-center gap-2 px-6 py-3 rounded-lg border border-slate-300 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-white font-medium transition-all group">
-            <span>Load More Articles</span>
-            <span className="material-symbols-outlined transition-transform group-hover:translate-y-0.5">expand_more</span>
+      {/* Suggest a Topic Section */}
+      <section className="w-full mt-12 mb-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 font-display">
+            Can't find what you're looking for?
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto">
+            Let us know what topics you'd like to see more of. We're always looking to expand our coverage.
+          </p>
+          <button 
+            onClick={() => setShowSuggestModal(true)}
+            className="inline-flex items-center gap-2 px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            <span className="material-symbols-outlined">lightbulb</span>
+            Suggest a Topic
         </button>
       </div>
+      </section>
+
+      {posts.length === 0 && !loading && (
+        <p className="text-center text-slate-500 dark:text-slate-400 pt-8 pb-4">
+          No trending posts for this time period.
+        </p>
+      )}
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal onClose={() => setShowAuthModal(false)} />
+      )}
+
+      {/* Suggest Topic Modal */}
+      {showSuggestModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-200 dark:border-slate-800">
+            <button
+              onClick={() => setShowSuggestModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+
+            {submitted ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                  <span className="material-symbols-outlined text-green-500 text-3xl">check_circle</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                  Thank you!
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Your suggestion has been submitted. We'll review it soon!
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-primary text-2xl">lightbulb</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    Suggest a Topic
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    What would you like us to write about?
+                  </p>
+                </div>
+
+                <form onSubmit={handleSuggestTopic} className="space-y-4">
+                  <div>
+                    <label htmlFor="topic" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      Topic *
+                    </label>
+                    <textarea
+                      id="topic"
+                      value={topicSuggestion}
+                      onChange={(e) => setTopicSuggestion(e.target.value)}
+                      placeholder="e.g., How to build a REST API with Node.js"
+                      required
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="suggestionEmail" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      Email (optional)
+                    </label>
+                    <input
+                      id="suggestionEmail"
+                      type="email"
+                      value={suggestionEmail}
+                      onChange={(e) => setSuggestionEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">We'll notify you when we publish it</p>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={submitting || !topicSuggestion.trim()}
+                    className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <span className="animate-spin">⏳</span>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-[20px]">send</span>
+                        Submit Suggestion
+                      </>
+                    )}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

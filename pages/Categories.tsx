@@ -18,6 +18,11 @@ interface Category {
 export const Categories: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const [topicSuggestion, setTopicSuggestion] = useState('');
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -50,6 +55,25 @@ export const Categories: React.FC = () => {
     purple: 'from-purple-500 to-indigo-600',
     orange: 'from-orange-500 to-amber-600',
     default: 'from-slate-600 to-slate-700'
+  };
+
+  const handleSuggestTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topicSuggestion.trim()) return;
+    
+    setSubmitting(true);
+    // Simulate API call - in production, you'd send this to your backend
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setSubmitting(false);
+    setSubmitted(true);
+    
+    // Reset after a few seconds
+    setTimeout(() => {
+      setShowSuggestModal(false);
+      setSubmitted(false);
+      setTopicSuggestion('');
+      setEmail('');
+    }, 2000);
   };
 
   if (loading) {
@@ -144,11 +168,104 @@ export const Categories: React.FC = () => {
           <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto">
             Let us know what topics you'd like to see more of. We're always looking to expand our coverage.
           </p>
-          <button className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+          <button 
+            onClick={() => setShowSuggestModal(true)}
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
             Suggest a Topic
           </button>
         </div>
       </div>
+
+      {/* Suggest Topic Modal */}
+      {showSuggestModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-200 dark:border-slate-800">
+            <button
+              onClick={() => setShowSuggestModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+
+            {submitted ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                  <span className="material-symbols-outlined text-green-500 text-3xl">check_circle</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                  Thank you!
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Your suggestion has been submitted. We'll review it soon!
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-primary text-2xl">lightbulb</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    Suggest a Topic
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    What would you like us to write about?
+                  </p>
+                </div>
+
+                <form onSubmit={handleSuggestTopic} className="space-y-4">
+                  <div>
+                    <label htmlFor="topic" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      Topic *
+                    </label>
+                    <textarea
+                      id="topic"
+                      value={topicSuggestion}
+                      onChange={(e) => setTopicSuggestion(e.target.value)}
+                      placeholder="e.g., How to build a REST API with Node.js"
+                      required
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      Email (optional)
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">We'll notify you when we publish it</p>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={submitting || !topicSuggestion.trim()}
+                    className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <span className="animate-spin">⏳</span>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-[20px]">send</span>
+                        Submit Suggestion
+                      </>
+                    )}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
