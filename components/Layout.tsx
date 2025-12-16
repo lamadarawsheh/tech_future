@@ -20,8 +20,44 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPracticeOpen, setIsPracticeOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const practiceMenuRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside and escape key for mobile menu and practice dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+      if (practiceMenuRef.current && !practiceMenuRef.current.contains(event.target as Node)) {
+        setIsPracticeOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (isPracticeOpen) {
+          setIsPracticeOpen(false);
+        } else {
+          setIsMobileMenuOpen(false);
+        }
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isMobileMenuOpen, isPracticeOpen]);
 
   const isAuthenticated = !!user && !!subscriber;
 
@@ -679,25 +715,229 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                   )}
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="hidden sm:flex items-center gap-2 rounded-full bg-slate-900 dark:bg-white px-5 py-2.5 text-sm font-bold text-white dark:text-slate-900 transition-all hover:bg-primary dark:hover:bg-primary dark:hover:text-white hover:shadow-lg hover:shadow-primary/25 active:scale-95"
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    login
-                  </span>
-                  <span>Sign In</span>
-                </button>
+ <button
+  onClick={() => setShowAuthModal(true)}
+  className="flex items-center justify-center gap-1.5 rounded-full bg-slate-900 dark:bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white dark:text-slate-900 transition-all hover:bg-primary dark:hover:bg-primary dark:hover:text-white hover:shadow-lg hover:shadow-primary/25 active:scale-95 whitespace-nowrap min-w-[80px] sm:min-w-[100px]"
+>
+  <span className="material-symbols-outlined text-[14px] sm:text-[16px]">login</span>
+  <span>Sign In</span>
+</button>
               )}
-              <button className="md:hidden text-slate-900 dark:text-white">
-                <span className="material-symbols-outlined text-[24px]">
-                  menu
-                </span>
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden text-slate-900 dark:text-white p-2 -mr-2 focus:outline-none"
+                aria-expanded={isMobileMenuOpen}
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? (
+                  <span className="material-symbols-outlined text-[24px]">close</span>
+                ) : (
+                  <span className="material-symbols-outlined text-[24px]">menu</span>
+                )}
               </button>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Mobile Menu */}
+      <div 
+        ref={mobileMenuRef}
+        className={`fixed inset-y-0 left-0 w-64 z-50 bg-white dark:bg-slate-900 shadow-xl transform transition-transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:hidden`}
+      >
+        <div className="flex flex-col h-full p-4">
+          <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Menu</h2>
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label="Close menu"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          
+          <nav className="flex-1 py-4 space-y-2">
+            <Link 
+              to="/" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <span className="material-symbols-outlined mr-3">home</span>
+              <span>Home</span>
+            </Link>
+            <Link 
+              to="/trending" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <span className="material-symbols-outlined mr-3">trending_up</span>
+              <span>Trending</span>
+            </Link>
+            <Link 
+              to="/categories" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <span className="material-symbols-outlined mr-3">category</span>
+              <span>Categories</span>
+            </Link>
+            <Link 
+              to="/about" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <span className="material-symbols-outlined mr-3">info</span>
+              <span>About</span>
+            </Link>
+            <div className="space-y-1">
+              <button
+                onClick={() => setIsPracticeOpen(!isPracticeOpen)}
+                className="flex items-center justify-between w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                <div className="flex items-center">
+                  <span className="material-symbols-outlined mr-3">code</span>
+                  <span className="relative">
+                    <span className="animate-text-shine bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent font-bold">
+                      Practice
+                    </span>
+                    <span className="absolute -top-1 -right-4 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                  </span>
+                </div>
+                <span className={`material-symbols-outlined transition-transform duration-200 ${isPracticeOpen ? 'rotate-180' : ''}`}>
+                  expand_more
+                </span>
+              </button>
+              
+              <div 
+                className={`overflow-hidden transition-all duration-200 ease-in-out ${isPracticeOpen ? 'max-h-64' : 'max-h-0'}`}
+              >
+                <div className="ml-8 space-y-1 py-1">
+                  <Link
+                    to="/practice"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-emerald-500 text-[20px]">
+                      terminal
+                    </span>
+                    <div>
+                      <p className="font-medium">Arena</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Solve challenges
+                      </p>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/challenges"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-cyan-500 text-[20px]">
+                      school
+                    </span>
+                    <div>
+                      <p className="font-medium">Learning Paths</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Structured courses
+                      </p>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/leaderboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-amber-500 text-[20px]">
+                      leaderboard
+                    </span>
+                    <div>
+                      <p className="font-medium">Leaderboard</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Rankings & XP
+                      </p>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/submissions"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-purple-500 text-[20px]">
+                      description
+                    </span>
+                    <div>
+                      <p className="font-medium">My Submissions</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        View your solutions
+                      </p>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </nav>
+          
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+            {!isAuthenticated ? (
+              <button
+                onClick={() => {
+                  setShowAuthModal(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center py-2 px-4 bg-slate-900 hover:bg-primary text-white font-medium rounded-lg transition-colors dark:bg-white dark:text-slate-900 dark:hover:bg-primary dark:hover:text-white"
+              >
+                <span className="material-symbols-outlined mr-2">login</span>
+                <span>Sign In</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  signOut();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center py-2 px-4 text-red-600 hover:bg-red-50 font-medium rounded-lg transition-colors dark:text-red-400 dark:hover:bg-red-900/30"
+              >
+                <span className="material-symbols-outlined mr-2">logout</span>
+                <span>Sign Out</span>
+              </button>
+            )}
+            
+            <button
+              onClick={() => {
+                toggleTheme();
+              }}
+              className="w-full mt-3 flex items-center px-4 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              {isDarkMode ? (
+                <>
+                  <span className="material-symbols-outlined mr-3">light_mode</span>
+                  <span>Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined mr-3">dark_mode</span>
+                  <span>Dark Mode</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Main Content */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
