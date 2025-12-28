@@ -23,7 +23,7 @@ import Challenges from './pages/Challenges';
 import Leaderboard from './pages/Leaderboard';
 import Submissions from './pages/Submissions';
 import Lesson from './pages/Lesson';
-
+import { NotFound } from './pages/NotFound';
 const App: React.FC = () => {
   return (
     <AuthProvider>
@@ -54,6 +54,8 @@ const App: React.FC = () => {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/submissions" element={<Submissions />} />
           <Route path="/lesson/:slug" element={<Lesson />} />
+          // In App.tsx, add this as the last route
+<Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
     </Router>
