@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Custom animations and styles */
 
 /* Text shine animation for gradient text */

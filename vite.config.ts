@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 export default defineConfig(({ mode }) => {
   // Load environment variables from .env files
   // Vite automatically loads .env files, so we don't need loadEnv here
-  
+
   return {
     server: {
       port: 3000,

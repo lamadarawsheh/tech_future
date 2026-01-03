@@ -117,11 +117,12 @@ export const Home: React.FC = () => {
       {/* Hero Section */}
       {featuredPost && (
         <section className="mb-16 rounded-3xl overflow-hidden relative group shadow-2xl shadow-slate-200/50 dark:shadow-none">
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/60 to-transparent z-10"></div>
           <div
             className="w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-105"
             style={{ backgroundImage: `url('${featuredPost.image}')` }}
           ></div>
+          <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/90 via-black/60 to-black/20 backdrop-blur-sm"></div>
+
           <div className="absolute inset-0 z-20 flex flex-col justify-end p-6 sm:p-10 lg:p-16">
             <div className="max-w-4xl space-y-6 transform transition-transform duration-500 group-hover:-translate-y-2">
               <div className="flex flex-wrap items-center gap-4">
@@ -179,11 +180,10 @@ export const Home: React.FC = () => {
             <div className="flex gap-2 bg-slate-100 dark:bg-surface-dark p-1 rounded-lg">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-md transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
+                  ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
               >
                 <span className="material-symbols-outlined text-[20px]">
                   grid_view
@@ -191,11 +191,10 @@ export const Home: React.FC = () => {
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
+                className={`p-2 rounded-md transition-colors ${viewMode === 'list'
+                  ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
               >
                 <span className="material-symbols-outlined text-[20px]">
                   view_list
@@ -380,11 +379,10 @@ export const Home: React.FC = () => {
                 <button
                   key={key}
                   onClick={() => setTrendingFilter(key as TrendingTimeFilter)}
-                  className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                    trendingFilter === key
-                      ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                  }`}
+                  className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-md transition-all ${trendingFilter === key
+                    ? 'bg-white dark:bg-slate-700 text-primary shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
                 >
                   {label}
                 </button>
