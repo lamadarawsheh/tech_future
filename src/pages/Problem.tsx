@@ -282,15 +282,13 @@ const Problem: React.FC = () => {
 
       if (result.success) {
         setOutput(
-          `✅ Code executed successfully!\n\n📤 Output:\n${
-            result.output || '(no output)'
+          `✅ Code executed successfully!\n\n📤 Output:\n${result.output || '(no output)'
           }\n\n⏱️ Time: ${result.executionTime}ms`
         );
         setStatus({ type: 'success', message: 'Code executed successfully!' });
       } else {
         setOutput(
-          `❌ Execution failed!\n\n🐛 Error:\n${
-            result.error || 'Unknown error'
+          `❌ Execution failed!\n\n🐛 Error:\n${result.error || 'Unknown error'
           }`
         );
         setStatus({
@@ -301,8 +299,7 @@ const Problem: React.FC = () => {
     } catch (error) {
       console.error('Quick run error:', error);
       setOutput(
-        `❌ Failed to execute code.\n\nError: ${
-          error instanceof Error ? error.message : 'Unknown error'
+        `❌ Failed to execute code.\n\nError: ${error instanceof Error ? error.message : 'Unknown error'
         }`
       );
       setStatus({ type: 'error', message: 'Failed to execute.' });
@@ -371,8 +368,7 @@ const Problem: React.FC = () => {
       console.error('Run tests error:', error);
       setStatus({ type: 'error', message: 'Failed to run tests.' });
       setOutput(
-        `❌ Error running tests.\n\n${
-          error instanceof Error ? error.message : 'Unknown error'
+        `❌ Error running tests.\n\n${error instanceof Error ? error.message : 'Unknown error'
         }`
       );
     }
@@ -532,9 +528,8 @@ const Problem: React.FC = () => {
   if (loading) {
     return (
       <div
-        className={`min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 flex items-center justify-center ${
-          isDarkMode ? 'bg-slate-950' : 'bg-slate-100'
-        }`}
+        className={`min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 flex items-center justify-center ${isDarkMode ? 'bg-slate-950' : 'bg-slate-100'
+          }`}
       >
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -549,29 +544,25 @@ const Problem: React.FC = () => {
   if (!challenge) {
     return (
       <div
-        className={`min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 flex items-center justify-center ${
-          isDarkMode ? 'bg-slate-950' : 'bg-slate-100'
-        }`}
+        className={`min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 flex items-center justify-center ${isDarkMode ? 'bg-slate-950' : 'bg-slate-100'
+          }`}
       >
         <div className="text-center">
           <span
-            className={`material-symbols-outlined text-6xl mb-4 ${
-              isDarkMode ? 'text-slate-600' : 'text-slate-400'
-            }`}
+            className={`material-symbols-outlined text-6xl mb-4 ${isDarkMode ? 'text-slate-600' : 'text-slate-400'
+              }`}
           >
             error
           </span>
           <h2
-            className={`text-2xl font-bold mb-2 ${
-              isDarkMode ? 'text-white' : 'text-slate-900'
-            }`}
+            className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-slate-900'
+              }`}
           >
             Challenge Not Found
           </h2>
           <p
-            className={`mb-6 ${
-              isDarkMode ? 'text-slate-400' : 'text-slate-600'
-            }`}
+            className={`mb-6 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'
+              }`}
           >
             The challenge you're looking for doesn't exist.
           </p>
@@ -588,45 +579,41 @@ const Problem: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 flex flex-col ${
-        isDarkMode ? 'bg-slate-950' : 'bg-slate-100'
-      }`}
+      className={`min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 flex flex-col ${isDarkMode ? 'bg-slate-950' : 'bg-slate-100'
+        }`}
     >
       {/* Status Banner - Clean inline UI instead of popup */}
       {status.type && (
         <div
-          className={`px-4 py-2 flex items-center justify-between ${
-            status.type === 'success'
-              ? 'bg-emerald-500/10 border-b border-emerald-500/20'
-              : status.type === 'error'
+          className={`px-4 py-2 flex items-center justify-between ${status.type === 'success'
+            ? 'bg-emerald-500/10 border-b border-emerald-500/20'
+            : status.type === 'error'
               ? 'bg-red-500/10 border-b border-red-500/20'
               : 'bg-blue-500/10 border-b border-blue-500/20'
-          }`}
+            }`}
         >
           <div className="flex items-center gap-2">
             <span
-              className={`material-symbols-outlined text-sm ${
-                status.type === 'success'
-                  ? 'text-emerald-400'
-                  : status.type === 'error'
+              className={`material-symbols-outlined text-sm ${status.type === 'success'
+                ? 'text-emerald-400'
+                : status.type === 'error'
                   ? 'text-red-400'
                   : 'text-blue-400'
-              }`}
+                }`}
             >
               {status.type === 'success'
                 ? 'check_circle'
                 : status.type === 'error'
-                ? 'error'
-                : 'info'}
+                  ? 'error'
+                  : 'info'}
             </span>
             <span
-              className={`text-sm font-medium ${
-                status.type === 'success'
-                  ? 'text-emerald-400'
-                  : status.type === 'error'
+              className={`text-sm font-medium ${status.type === 'success'
+                ? 'text-emerald-400'
+                : status.type === 'error'
                   ? 'text-red-400'
                   : 'text-blue-400'
-              }`}
+                }`}
             >
               {status.message}
             </span>
@@ -642,11 +629,10 @@ const Problem: React.FC = () => {
 
       {/* Header */}
       <div
-        className={`border-b px-4 py-2 ${
-          isDarkMode
-            ? 'bg-slate-900 border-slate-800'
-            : 'bg-white border-slate-200'
-        }`}
+        className={`border-b px-4 py-2 ${isDarkMode
+          ? 'bg-slate-900 border-slate-800'
+          : 'bg-white border-slate-200'
+          }`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -701,27 +687,24 @@ const Problem: React.FC = () => {
       <div className="flex-1 flex">
         {/* Left Panel - Description */}
         <div
-          className={`w-1/2 border-r flex flex-col ${
-            isDarkMode ? 'border-slate-800' : 'border-slate-200 bg-white'
-          }`}
+          className={`w-1/2 border-r flex flex-col ${isDarkMode ? 'border-slate-800' : 'border-slate-200 bg-white'
+            }`}
         >
           <div
-            className={`flex items-center gap-1 px-4 py-2 border-b ${
-              isDarkMode
-                ? 'border-slate-800 bg-slate-900/50'
-                : 'border-slate-200 bg-slate-50'
-            }`}
+            className={`flex items-center gap-1 px-4 py-2 border-b ${isDarkMode
+              ? 'border-slate-800 bg-slate-900/50'
+              : 'border-slate-200 bg-slate-50'
+              }`}
           >
             {(['description', 'solutions', 'submissions'] as const).map(
               (tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-1.5 rounded text-sm font-medium transition ${
-                    activeTab === tab
-                      ? 'bg-slate-800 text-white'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
+                  className={`px-4 py-1.5 rounded text-sm font-medium transition ${activeTab === tab
+                    ? 'bg-slate-800 text-white'
+                    : 'text-slate-400 hover:text-white'
+                    }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
@@ -875,11 +858,10 @@ const Problem: React.FC = () => {
         <div className="w-1/2 flex flex-col">
           {/* Editor Header */}
           <div
-            className={`flex items-center justify-between px-4 py-2 border-b ${
-              isDarkMode
-                ? 'border-slate-800 bg-slate-900/50'
-                : 'border-slate-200 bg-slate-50'
-            }`}
+            className={`flex items-center justify-between px-4 py-2 border-b ${isDarkMode
+              ? 'border-slate-800 bg-slate-900/50'
+              : 'border-slate-200 bg-slate-50'
+              }`}
           >
             <div className="flex items-center gap-3">
               <select
@@ -911,16 +893,14 @@ const Problem: React.FC = () => {
 
                 {showSettings && (
                   <div
-                    className={`absolute right-0 top-full mt-2 w-64 rounded-xl shadow-xl z-50 p-4 ${
-                      isDarkMode
-                        ? 'bg-slate-900 border border-slate-700'
-                        : 'bg-white border border-slate-200'
-                    }`}
+                    className={`absolute right-0 top-full mt-2 w-64 rounded-xl shadow-xl z-50 p-4 ${isDarkMode
+                      ? 'bg-slate-900 border border-slate-700'
+                      : 'bg-white border border-slate-200'
+                      }`}
                   >
                     <h4
-                      className={`font-medium text-sm mb-3 ${
-                        isDarkMode ? 'text-white' : 'text-slate-900'
-                      }`}
+                      className={`font-medium text-sm mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'
+                        }`}
                     >
                       Editor Settings
                     </h4>
@@ -934,19 +914,18 @@ const Problem: React.FC = () => {
                         {(isDarkMode
                           ? (Object.keys(DARK_THEMES) as ThemeKey[])
                           : (Object.keys(LIGHT_THEMES) as ThemeKey[])
-                        ).map((key) => (
+                        ).map((themeName) => (
                           <button
-                            key={key}
-                            onClick={() => setEditorTheme(key)}
-                            className={`px-3 py-2 rounded-lg text-xs font-medium transition ${
-                              editorTheme === key
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                : isDarkMode
-                                ? 'bg-slate-800 text-slate-400 hover:text-white border border-transparent'
-                                : 'bg-slate-200 text-slate-600 hover:text-slate-900 border border-transparent'
-                            }`}
+                            key={themeName}
+                            onClick={() => setEditorTheme(themeName)}
+                            className={`px-3 py-2 rounded-lg text-xs font-medium transition ${editorTheme === themeName
+                              ? 'bg-emerald-500 text-white'
+                              : isDarkMode
+                                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              }`}
                           >
-                            {EDITOR_THEMES[key].name}
+                            {EDITOR_THEMES[themeName].name}
                           </button>
                         ))}
                       </div>
@@ -1018,18 +997,16 @@ const Problem: React.FC = () => {
           {/* Output Panel */}
           {(output || testResults.length > 0) && (
             <div
-              className={`h-56 border-t overflow-hidden flex flex-col ${
-                isDarkMode
-                  ? 'border-slate-800 bg-slate-900/80'
-                  : 'border-slate-200 bg-slate-50'
-              }`}
+              className={`h-56 border-t overflow-hidden flex flex-col ${isDarkMode
+                ? 'border-slate-800 bg-slate-900/80'
+                : 'border-slate-200 bg-slate-50'
+                }`}
             >
               <div
-                className={`flex items-center justify-between px-4 py-2 border-b ${
-                  isDarkMode
-                    ? 'border-slate-800 bg-slate-900/50'
-                    : 'border-slate-200 bg-white'
-                }`}
+                className={`flex items-center justify-between px-4 py-2 border-b ${isDarkMode
+                  ? 'border-slate-800 bg-slate-900/50'
+                  : 'border-slate-200 bg-white'
+                  }`}
               >
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-medium text-white">Output</span>
@@ -1060,11 +1037,10 @@ const Problem: React.FC = () => {
                     {testResults.map((result, i) => (
                       <div
                         key={i}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium ${
-                          result.passed
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
-                            : 'bg-red-500/20 text-red-400 border border-red-500/20'
-                        }`}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium ${result.passed
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                          : 'bg-red-500/20 text-red-400 border border-red-500/20'
+                          }`}
                       >
                         <span className="material-symbols-outlined text-xs">
                           {result.passed ? 'check_circle' : 'cancel'}
@@ -1081,67 +1057,17 @@ const Problem: React.FC = () => {
                     {output}
                   </pre>
                 )}
-
-                {/* Failed Test Details */}
-                {testResults.filter((r) => !r.passed).length > 0 && (
-                  <div className="mt-4 space-y-3">
-                    {testResults
-                      .filter((r) => !r.passed)
-                      .map((result, i) => (
-                        <div
-                          key={i}
-                          className="bg-red-500/5 border border-red-500/10 rounded-lg p-3"
-                        >
-                          <p className="text-xs text-red-400 font-medium mb-2">
-                            Failed Test Case
-                          </p>
-                          <div className="font-mono text-xs space-y-1">
-                            <p className="text-slate-400">
-                              Input:{' '}
-                              <span className="text-slate-300">
-                                {result.input}
-                              </span>
-                            </p>
-                            <p className="text-slate-400">
-                              Expected:{' '}
-                              <span className="text-emerald-400">
-                                {result.expected}
-                              </span>
-                            </p>
-                            <p className="text-slate-400">
-                              Got:{' '}
-                              <span className="text-red-400">
-                                {result.actual}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                )}
               </div>
             </div>
           )}
 
-          {/* Actions */}
+          {/* Bottom Action Bar */}
           <div
-            className={`flex items-center justify-between px-4 py-3 border-t ${
-              isDarkMode
+            className={`border-t px-4 py-3 ${isDarkMode
                 ? 'border-slate-800 bg-slate-900'
-                : 'border-slate-200 bg-white'
-            }`}
+                : 'border-slate-200 bg-slate-50'
+              }`}
           >
-            <div className="flex items-center gap-3">
-              <button
-                onClick={quickRun}
-                disabled={isRunning}
-                className="flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition text-sm disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-sm">bolt</span>
-                Quick Run
-              </button>
-            </div>
-
             <div className="flex items-center gap-3">
               <button
                 onClick={runTests}
