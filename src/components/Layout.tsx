@@ -3,6 +3,7 @@ import { useStore } from '../store';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChatInterface } from './ChatInterface';
 import { AuthModal } from './AuthModal';
+import { Logo } from './Logo';
 import { useAuth } from '../contexts/AuthContext';
 import { getSearchSuggestions, SearchSuggestion } from '../services/sanity';
 
@@ -164,12 +165,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 to="/"
                 className="flex items-center gap-3 text-slate-900 dark:text-white group"
               >
-                <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-white shadow-lg shadow-primary/30 transition-transform group-hover:scale-110 group-hover:rotate-3">
-                  <span className="material-symbols-outlined text-[24px]">
-                    hub
-                  </span>
-                </div>
-                <h2 className="text-xl font-extrabold tracking-tight font-display">
+                <Logo size={52} className="text-cyan-500 transition-transform group-hover:scale-110 group-hover:rotate-3" />
+                <h2 className="text-2xl font-extrabold tracking-tight font-display">
                   Bot & Beam
                 </h2>
               </Link>
@@ -177,8 +174,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 <Link
                   to="/"
                   className={`text-sm font-semibold transition-colors ${location.pathname === '/'
-                      ? 'text-primary'
-                      : 'text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary'
+                    ? 'text-primary'
+                    : 'text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary'
                     }`}
                 >
                   Home
@@ -186,8 +183,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 <Link
                   to="/trending"
                   className={`text-sm font-semibold transition-colors ${location.pathname === '/trending'
-                      ? 'text-primary'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
+                    ? 'text-primary'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
                 >
                   Trending
@@ -195,8 +192,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 <Link
                   to="/categories"
                   className={`text-sm font-semibold transition-colors ${location.pathname.includes('/category')
-                      ? 'text-primary'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
+                    ? 'text-primary'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
                 >
                   Categories
@@ -205,13 +202,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 <div className="relative group">
                   <button
                     className={`flex items-center gap-1 text-sm font-semibold transition-colors ${[
-                        '/practice',
-                        '/challenges',
-                        '/leaderboard',
-                        '/submissions',
-                      ].some((p) => location.pathname.startsWith(p))
-                        ? 'text-primary'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
+                      '/practice',
+                      '/challenges',
+                      '/leaderboard',
+                      '/submissions',
+                    ].some((p) => location.pathname.startsWith(p))
+                      ? 'text-primary'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                       }`}
                   >
                     <span className="relative">
@@ -291,8 +288,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 <Link
                   to="/newsletter"
                   className={`text-sm font-semibold transition-colors ${location.pathname === '/newsletter'
-                      ? 'text-primary'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
+                    ? 'text-primary'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
                 >
                   Newsletter
@@ -327,8 +324,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                   }}
                   onKeyDown={handleKeyDown}
                   className={`block w-full rounded-full border bg-slate-50 dark:bg-slate-800/50 pl-11 pr-16 py-2.5 text-sm font-medium placeholder-slate-400 text-slate-900 dark:text-white transition-all shadow-sm focus:outline-none ${searchFocused
-                      ? 'border-primary ring-2 ring-primary/20'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'
+                    ? 'border-primary ring-2 ring-primary/20'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'
                     }`}
                   placeholder="Search articles, authors..."
                   type="text"
@@ -428,8 +425,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                                           handleSuggestionClick(suggestion)
                                         }
                                         className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 ${selectedSuggestionIndex === globalIndex
-                                            ? 'bg-primary/10 dark:bg-primary/15'
-                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                                          ? 'bg-primary/10 dark:bg-primary/15'
+                                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                                           }`}
                                       >
                                         {suggestion.image ? (
@@ -494,9 +491,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                                             handleSuggestionClick(suggestion)
                                           }
                                           className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${selectedSuggestionIndex ===
-                                              globalIndex
-                                              ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 ring-2 ring-violet-300 dark:ring-violet-600'
-                                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-700 dark:hover:text-violet-300'
+                                            globalIndex
+                                            ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 ring-2 ring-violet-300 dark:ring-violet-600'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-700 dark:hover:text-violet-300'
                                             }`}
                                         >
                                           <span className="material-symbols-outlined text-base">
@@ -536,8 +533,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                                           handleSuggestionClick(suggestion)
                                         }
                                         className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all ${selectedSuggestionIndex === globalIndex
-                                            ? 'bg-blue-50 dark:bg-blue-900/20'
-                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                                          ? 'bg-blue-50 dark:bg-blue-900/20'
+                                          : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
                                           }`}
                                       >
                                         {suggestion.image ? (
