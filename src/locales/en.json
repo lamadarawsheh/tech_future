@@ -54,9 +54,10 @@
     "submitting": "Submitting...",
     "submitBtn": "Submit Suggestion"
   },
-  "categoriesPage": {
+  "categories": {
     "title": "Explore Categories",
     "subtitle": "Discover {{count}} categories covering the latest in technology, development, and innovation.",
+    "explore": "Explore Category",
     "viewAll": "View all posts",
     "cantFind": "Can't find what you're looking for?",
     "suggestDesc": "Let us know what topics you'd like to see more of. We're always looking to expand our coverage.",

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  getUserSubmissions, 
-  getUserSubmissionStats, 
-  getUserCodingProfile 
+import {
+  getUserSubmissions,
+  getUserSubmissionStats,
+  getUserCodingProfile
 } from '../services/coding';
 import { Submission, UserCodingProfile, getDifficultyBg, SubmissionStatus, ProgrammingLanguage } from '../types/coding';
 
@@ -106,11 +106,11 @@ const Submissions: React.FC = () => {
 
   if (!subscriber) {
     return (
-      <div className="min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
         <div className="text-center">
-          <span className="material-symbols-outlined text-6xl text-slate-600 mb-4">lock</span>
-          <h2 className="text-2xl font-bold text-white mb-2">Sign In Required</h2>
-          <p className="text-slate-400 mb-6">Please sign in to view your submission history</p>
+          <span className="material-symbols-outlined text-6xl text-slate-400 dark:text-slate-600 mb-4">lock</span>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Sign In Required</h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">Please sign in to view your submission history</p>
           <Link
             to="/practice"
             className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition"
@@ -123,9 +123,9 @@ const Submissions: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 bg-slate-950">
+    <div className="min-h-screen -mt-10 -mx-4 sm:-mx-6 lg:-mx-8 bg-slate-50 dark:bg-slate-950">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-blue-900/30 to-slate-900 border-b border-slate-700/50">
+      <div className="bg-gradient-to-r from-slate-100 via-blue-100/30 to-slate-100 dark:from-slate-900 dark:via-blue-900/30 dark:to-slate-900 border-b border-slate-200 dark:border-slate-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -133,16 +133,16 @@ const Submissions: React.FC = () => {
                 <span className="material-symbols-outlined text-white text-xl">terminal</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white font-display">DevBlog & Code</h1>
-                <p className="text-xs text-slate-400">Submissions</p>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white font-display">DevBlog & Code</h1>
+                <p className="text-xs text-slate-600 dark:text-slate-400">Submissions</p>
               </div>
             </div>
-            
+
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/practice" className="text-slate-400 hover:text-white transition text-sm">Blog</Link>
-              <Link to="/practice" className="text-slate-400 hover:text-white transition text-sm">Problems</Link>
-              <Link to="/submissions" className="text-blue-400 font-medium text-sm">Submissions</Link>
-              <Link to="/leaderboard" className="text-slate-400 hover:text-white transition text-sm">Leaderboard</Link>
+              <Link to="/practice" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">Blog</Link>
+              <Link to="/practice" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">Problems</Link>
+              <Link to="/submissions" className="text-blue-600 dark:text-blue-400 font-medium text-sm">Submissions</Link>
+              <Link to="/leaderboard" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">Leaderboard</Link>
             </nav>
           </div>
         </div>
@@ -151,10 +151,10 @@ const Submissions: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Hero Section */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 font-display">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2 font-display">
             Your Coding Journey
           </h2>
-          <p className="text-slate-400">
+          <p className="text-slate-600 dark:text-slate-400">
             Visualize your progress, analyze performance metrics, and revisit your solution evolution over time.
           </p>
         </div>
@@ -163,9 +163,9 @@ const Submissions: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Activity Chart */}
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-white font-semibold flex items-center gap-2">
+                <h3 className="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
                   <span className="material-symbols-outlined text-blue-400">bar_chart_4_bars</span>
                   Submission Activity
                 </h3>
@@ -190,17 +190,17 @@ const Submissions: React.FC = () => {
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex flex-col items-center gap-0.5" style={{ height: '100px' }}>
                       {/* Attempts bar (background) */}
-                      <div 
+                      <div
                         className="w-full bg-slate-700 rounded-t"
-                        style={{ 
+                        style={{
                           height: `${(day.count / maxActivity) * 100}%`,
                           minHeight: day.count > 0 ? '4px' : '0'
                         }}
                       />
                       {/* Accepted bar (overlay) */}
-                      <div 
+                      <div
                         className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t -mt-full"
-                        style={{ 
+                        style={{
                           height: `${(day.accepted / maxActivity) * 100}%`,
                           minHeight: day.accepted > 0 ? '4px' : '0'
                         }}
@@ -221,7 +221,7 @@ const Submissions: React.FC = () => {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value as any)}
-                  className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Statuses</option>
                   <option value="accepted">Accepted</option>
@@ -237,7 +237,7 @@ const Submissions: React.FC = () => {
                 <select
                   value={filterLanguage}
                   onChange={(e) => setFilterLanguage(e.target.value as any)}
-                  className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="all">All Languages</option>
                   <option value="python">Python</option>
@@ -250,8 +250,8 @@ const Submissions: React.FC = () => {
 
             {/* Submissions Timeline */}
             <div className="space-y-4">
-              <h3 className="text-white font-semibold">Timeline</h3>
-              
+              <h3 className="text-slate-900 dark:text-white font-semibold">Timeline</h3>
+
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 animate-pulse">
@@ -275,9 +275,9 @@ const Submissions: React.FC = () => {
                 submissions.map((submission) => (
                   <div
                     key={submission._id}
-                    className="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden"
+                    className="bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-xl overflow-hidden"
                   >
-                    <div 
+                    <div
                       className="p-4 cursor-pointer hover:bg-slate-800/30 transition"
                       onClick={() => setExpandedSubmission(
                         expandedSubmission === submission._id ? null : submission._id
@@ -297,18 +297,18 @@ const Submissions: React.FC = () => {
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(submission.status)}`}>
                               {getStatusLabel(submission.status)}
                             </span>
-                            <span className="text-slate-500 text-xs">
+                            <span className="text-slate-500 dark:text-slate-500 text-xs">
                               {formatTimeAgo(submission.createdAt)}
                             </span>
                           </div>
                           <Link
                             to={`/problem/${submission.challenge?.slug?.current || submission.challenge?._ref}`}
-                            className="text-white font-medium hover:text-blue-400 transition"
+                            className="text-slate-900 dark:text-white font-medium hover:text-blue-600 dark:hover:text-blue-400 transition"
                             onClick={(e) => e.stopPropagation()}
                           >
                             {submission.challenge?.title || 'Unknown Challenge'}
                           </Link>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-600 dark:text-slate-500">
                             <span className="flex items-center gap-1">
                               <span className="material-symbols-outlined text-xs">code</span>
                               {submission.language?.charAt(0).toUpperCase() + submission.language?.slice(1)}
@@ -319,7 +319,7 @@ const Submissions: React.FC = () => {
                               </span>
                             )}
                             {submission.challenge?.tags?.slice(0, 2).map((tag) => (
-                              <span key={tag} className="text-slate-600">#{tag}</span>
+                              <span key={tag} className="text-slate-600 dark:text-slate-600">#{tag}</span>
                             ))}
                           </div>
                         </div>
@@ -332,7 +332,7 @@ const Submissions: React.FC = () => {
                                 <span className="material-symbols-outlined text-xs">timer</span>
                                 Runtime
                               </p>
-                              <p className="text-white font-medium">{submission.runtime || 0} ms</p>
+                              <p className="text-slate-900 dark:text-white font-medium">{submission.runtime || 0} ms</p>
                               <p className="text-xs text-green-400">
                                 Beats {submission.runtimePercentile || 0}%
                               </p>
@@ -342,7 +342,7 @@ const Submissions: React.FC = () => {
                                 <span className="material-symbols-outlined text-xs">memory</span>
                                 Memory
                               </p>
-                              <p className="text-white font-medium">{submission.memory || 0} MB</p>
+                              <p className="text-slate-900 dark:text-white font-medium">{submission.memory || 0} MB</p>
                               <p className="text-xs text-slate-400">
                                 Beats {submission.memoryPercentile || 0}%
                               </p>
@@ -351,9 +351,8 @@ const Submissions: React.FC = () => {
                         )}
 
                         {/* Expand Icon */}
-                        <span className={`material-symbols-outlined text-slate-500 transition ${
-                          expandedSubmission === submission._id ? 'rotate-180' : ''
-                        }`}>
+                        <span className={`material-symbols-outlined text-slate-500 transition ${expandedSubmission === submission._id ? 'rotate-180' : ''
+                          }`}>
                           expand_more
                         </span>
                       </div>
@@ -404,13 +403,13 @@ const Submissions: React.FC = () => {
           {/* Sidebar - Stats */}
           <div className="space-y-6">
             {/* Total Solved */}
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5">
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-2xl p-5">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
                   <span className="material-symbols-outlined text-green-400">check_circle</span>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-white">{profile?.totalSolved || 0}</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{profile?.totalSolved || 0}</p>
                   <p className="text-slate-500 text-sm">Total Solved</p>
                 </div>
               </div>
@@ -425,28 +424,27 @@ const Submissions: React.FC = () => {
             </div>
 
             {/* Current Streak */}
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5">
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-2xl p-5">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
                   <span className="material-symbols-outlined text-orange-400">local_fire_department</span>
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-white">{stats?.streak || 0}</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats?.streak || 0}</p>
                   <p className="text-slate-500 text-sm">Current Streak</p>
                 </div>
               </div>
-              
+
               {/* Streak Calendar */}
               <div className="flex items-center justify-between bg-slate-800/50 rounded-lg p-3">
                 {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => {
                   const hasActivity = i < (stats?.streak || 0) % 7;
                   return (
                     <div key={i} className="flex flex-col items-center gap-1">
-                      <div className={`w-6 h-6 rounded flex items-center justify-center text-xs ${
-                        hasActivity
-                          ? 'bg-orange-500/30 text-orange-400'
-                          : 'bg-slate-700 text-slate-600'
-                      }`}>
+                      <div className={`w-6 h-6 rounded flex items-center justify-center text-xs ${hasActivity
+                        ? 'bg-orange-500/30 text-orange-400'
+                        : 'bg-slate-700 text-slate-600'
+                        }`}>
                         {hasActivity && <span className="material-symbols-outlined text-xs">check</span>}
                       </div>
                       <span className="text-xs text-slate-600">{day}</span>
@@ -459,9 +457,9 @@ const Submissions: React.FC = () => {
 
             {/* Problem Breakdown */}
             {profile && (
-              <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-5">
-                <h3 className="text-white font-semibold mb-4">Problem Breakdown</h3>
-                
+              <div className="bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800 rounded-2xl p-5">
+                <h3 className="text-slate-900 dark:text-white font-semibold mb-4">Problem Breakdown</h3>
+
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between text-sm mb-1">
@@ -469,33 +467,33 @@ const Submissions: React.FC = () => {
                       <span className="text-slate-400">{profile.easySolved}/100</span>
                     </div>
                     <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-green-500 rounded-full"
                         style={{ width: `${(profile.easySolved / 100) * 100}%` }}
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <div className="flex items-center justify-between text-sm mb-1">
                       <span className="text-yellow-400">Medium</span>
                       <span className="text-slate-400">{profile.mediumSolved}/150</span>
                     </div>
                     <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-yellow-500 rounded-full"
                         style={{ width: `${(profile.mediumSolved / 150) * 100}%` }}
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <div className="flex items-center justify-between text-sm mb-1">
                       <span className="text-red-400">Hard</span>
                       <span className="text-slate-400">{profile.hardSolved}/50</span>
                     </div>
                     <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-red-500 rounded-full"
                         style={{ width: `${(profile.hardSolved / 50) * 100}%` }}
                       />
@@ -507,7 +505,7 @@ const Submissions: React.FC = () => {
 
             {/* Acceptance Rate */}
             <div className="bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 rounded-2xl p-5">
-              <h3 className="text-white font-semibold mb-3">Acceptance Rate</h3>
+              <h3 className="text-slate-900 dark:text-white font-semibold mb-3">Acceptance Rate</h3>
               <div className="flex items-center justify-center">
                 <div className="relative w-24 h-24">
                   <svg className="w-24 h-24 transform -rotate-90">
@@ -532,7 +530,7 @@ const Submissions: React.FC = () => {
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">
+                    <span className="text-2xl font-bold text-slate-900 dark:text-white">
                       {stats?.total ? Math.round((stats.accepted / stats.total) * 100) : 0}%
                     </span>
                   </div>

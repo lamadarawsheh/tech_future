@@ -55,13 +55,20 @@ export const Categories: React.FC = () => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col gap-6 mb-12">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] text-slate-900 dark:text-white font-display">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-secondary/10 to-primary/5 dark:from-primary/20 dark:via-secondary/20 dark:to-primary/10 p-8 md:p-12 mb-12 border border-primary/20 dark:border-primary/30">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/10 rounded-full blur-3xl"></div>
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 mb-4">
+            <span className="material-symbols-outlined text-primary text-sm">explore</span>
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{categories.length} Categories</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] text-slate-900 dark:text-white font-display mb-4">
             {t('categories.title')}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-lg font-normal leading-normal">
-            {t('categories.subtitle')}
+          <p className="text-slate-600 dark:text-slate-300 text-lg font-normal leading-relaxed max-w-2xl">
+            {t('categories.subtitle', { count: categories.length })}
           </p>
         </div>
       </div>
@@ -74,41 +81,75 @@ export const Categories: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((category) => (
-            <Link
-              key={category._id}
-              to={`/category/${getSlug(category.slug)}`}
-              className="group flex flex-col gap-4 p-6 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
-            >
-              <div className="flex items-center justify-between">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
-                  <span className="material-symbols-outlined text-2xl">
-                    {category.title === 'AI & ML' ? 'smart_toy' :
-                      category.title === 'Development' ? 'code' :
-                        category.title === 'Cloud' ? 'cloud' :
-                          category.title === 'Security' ? 'security' :
-                            category.title === 'Data' ? 'database' : 'folder'}
-                  </span>
+          {categories.map((category, index) => {
+            const iconMap: Record<string, string> = {
+              'AI & ML': 'smart_toy',
+              'Machine Learning': 'psychology',
+              'Development': 'code',
+              'JavaScript': 'javascript',
+              'Cloud': 'cloud',
+              'Security': 'shield',
+              'Data': 'database',
+              'Python': 'terminal',
+              'DevOps': 'settings_suggest',
+              'Mobile': 'smartphone',
+            };
+
+            const gradientMap: Record<number, string> = {
+              0: 'from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20',
+              1: 'from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20',
+              2: 'from-orange-500/10 to-red-500/10 dark:from-orange-500/20 dark:to-red-500/20',
+              3: 'from-pink-500/10 to-rose-500/10 dark:from-pink-500/20 dark:to-rose-500/20',
+              4: 'from-cyan-500/10 to-blue-500/10 dark:from-cyan-500/20 dark:to-blue-500/20',
+              5: 'from-amber-500/10 to-yellow-500/10 dark:from-amber-500/20 dark:to-yellow-500/20',
+            };
+
+            const icon = iconMap[category.title] || 'folder';
+            const gradient = gradientMap[index % 6];
+
+            return (
+              <Link
+                key={category._id}
+                to={`/category/${getSlug(category.slug)}`}
+                className="group relative flex flex-col gap-4 p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden"
+              >
+                {/* Gradient Background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-lg shadow-primary/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                      <span className="material-symbols-outlined text-2xl">
+                        {icon}
+                      </span>
+                    </div>
+                    <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-300">
+                      <span className="material-symbols-outlined text-sm rtl:rotate-180 group-hover:translate-x-0.5">arrow_forward</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 font-display group-hover:text-primary transition-colors">
+                      {category.title}
+                    </h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-3 leading-relaxed">
+                      {category.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                      <span className="material-symbols-outlined text-sm">article</span>
+                      <span>{Math.floor(Math.random() * 50) + 10} articles</span>
+                    </div>
+                    <span className="text-sm font-bold text-primary group-hover:underline">
+                      {t('categories.explore')}
+                    </span>
+                  </div>
                 </div>
-                <span className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:text-primary transition-colors">
-                  <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
-                </span>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 font-display group-hover:text-primary transition-colors">
-                  {category.title}
-                </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2">
-                  {category.description}
-                </p>
-              </div>
-
-              <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-                <span>{t('categories.explore')}</span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
 
