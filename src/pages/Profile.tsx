@@ -81,8 +81,8 @@ export const Profile: React.FC = () => {
     activeTab === 'all'
       ? allActivities
       : activeTab === 'saved'
-      ? allActivities.filter((a) => a.type === 'saved')
-      : allActivities.filter((a) => a.type === 'comment');
+        ? allActivities.filter((a) => a.type === 'saved')
+        : allActivities.filter((a) => a.type === 'comment');
 
   const navItems: { key: NavType; label: string; icon: string }[] = [
     { key: 'overview', label: 'Overview', icon: 'dashboard' },
@@ -111,7 +111,7 @@ export const Profile: React.FC = () => {
 
           {/* Profile Info */}
           <div className="px-6 pb-6 relative z-10">
-            <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-12 md:-mt-16">
+            <div className="flex flex-col md:flex-row md:items-start gap-6 -mt-12 md:-mt-16">
               {/* Avatar */}
               <div className="relative">
                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-3xl md:text-4xl font-bold border-4 border-white dark:border-slate-900 shadow-xl">
@@ -125,26 +125,28 @@ export const Profile: React.FC = () => {
               </div>
 
               {/* Name & Info */}
-              <div className="flex-1 md:pb-2">
-                <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white font-display">
+              <div className="flex-1 md:mt-20">
+                {/* 2. Full Name */}
+                <h1 className="text-2xl md:text-3xl font-bold text-black dark:text-white font-display mb-1">
                   {subscriber?.name || user?.email?.split('@')[0] || 'User'}
                 </h1>
-                <p className="text-sm mt-1">
-                  <span className="text-primary font-bold">
-                    @
-                    {user?.email
-                      ?.split('@')[0]
-                      ?.toLowerCase()
-                      .replace(/\s/g, '')}
-                  </span>
-                  <span className="mx-2 text-slate-500 dark:text-slate-400">
-                    •
-                  </span>
-                  <span className="text-black dark:text-white font-semibold">
-                    Tech Enthusiast
-                  </span>
+
+                {/* 3. Username */}
+                <p className="text-sm font-bold text-primary mb-2">
+                  @
+                  {user?.email
+                    ?.split('@')[0]
+                    ?.toLowerCase()
+                    .replace(/\s/g, '')}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 mt-3 text-sm">
+
+                {/* 4. Short Bio / Role */}
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-3 font-medium">
+                  Tech Enthusiast
+                </p>
+
+                {/* 5. Meta info row */}
+                <div className="flex flex-wrap items-center gap-4 text-sm">
                   <span className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[18px] text-primary">
                       location_on
@@ -167,8 +169,17 @@ export const Profile: React.FC = () => {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-2 md:pb-2">
+              {/* 6. Action buttons */}
+              <div className="flex gap-2 md:mt-20">
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-dark transition-colors text-sm font-semibold shadow-lg shadow-primary/25"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    edit
+                  </span>
+                  Edit Profile
+                </button>
                 <button
                   onClick={toggleTheme}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-semibold border border-slate-200 dark:border-slate-700"
@@ -179,15 +190,6 @@ export const Profile: React.FC = () => {
                   <span className="hidden sm:inline">
                     {isDarkMode ? 'Light Mode' : 'Dark Mode'}
                   </span>
-                </button>
-                <button
-                  onClick={() => setShowEditModal(true)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-dark transition-colors text-sm font-semibold shadow-lg shadow-primary/25"
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    edit
-                  </span>
-                  Edit Profile
                 </button>
               </div>
             </div>
@@ -203,11 +205,10 @@ export const Profile: React.FC = () => {
                 <button
                   key={key}
                   onClick={() => setActiveNav(key)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    activeNav === key
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeNav === key
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
                     {icon}
@@ -332,83 +333,174 @@ export const Profile: React.FC = () => {
           {/* Main Content */}
           <main className="lg:col-span-9">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-              {/* Activity Feed Header */}
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
-                  Activity Feed
-                </h2>
-
-                {/* Tabs */}
-                <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
-                  {[
-                    { key: 'all' as TabType, label: 'All Activity' },
-                    { key: 'saved' as TabType, label: 'Saved' },
-                    { key: 'comments' as TabType, label: 'Comments' },
-                  ].map(({ key, label }) => (
-                    <button
-                      key={key}
-                      onClick={() => setActiveTab(key)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                        activeTab === key
-                          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                          : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Activity List */}
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                {loading ? (
-                  <div className="p-8 space-y-6">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="animate-pulse flex gap-4">
-                        <div className="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-xl" />
-                        <div className="flex-1 space-y-3">
-                          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
-                          <div className="h-20 bg-slate-200 dark:bg-slate-700 rounded-xl" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : filteredActivities.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-3xl text-slate-400">
-                        inbox
-                      </span>
+              {activeNav === 'overview' && (
+                <>
+                  <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
+                      Activity Feed
+                    </h2>
+                    <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl w-fit">
+                      {[
+                        { key: 'all' as TabType, label: 'All Activity' },
+                        { key: 'saved' as TabType, label: 'Saved' },
+                        { key: 'comments' as TabType, label: 'Comments' },
+                      ].map(({ key, label }) => (
+                        <button
+                          key={key}
+                          onClick={() => setActiveTab(key)}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === key
+                            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                            }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
                     </div>
-                    <p className="text-slate-500 dark:text-slate-400 mb-4">
-                      No activity yet
-                    </p>
-                    <Link
-                      to="/"
-                      className="text-primary hover:underline text-sm font-medium"
-                    >
-                      Start exploring articles →
-                    </Link>
                   </div>
-                ) : (
-                  filteredActivities
-                    .slice(0, 10)
-                    .map((activity, index) => (
-                      <ActivityItem
-                        key={`${activity.type}-${activity._id}-${index}`}
-                        activity={activity}
-                      />
-                    ))
-                )}
-              </div>
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {loading ? (
+                      <div className="p-8 space-y-6">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="animate-pulse flex gap-4">
+                            <div className="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+                            <div className="flex-1 space-y-3">
+                              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
+                              <div className="h-20 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : filteredActivities.length === 0 ? (
+                      <div className="p-12 text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                          <span className="material-symbols-outlined text-3xl text-slate-400">
+                            inbox
+                          </span>
+                        </div>
+                        <p className="text-slate-500 dark:text-slate-400 mb-4">
+                          No activity yet
+                        </p>
+                        <Link
+                          to="/"
+                          className="text-primary hover:underline text-sm font-medium"
+                        >
+                          Start exploring articles →
+                        </Link>
+                      </div>
+                    ) : (
+                      filteredActivities
+                        .slice(0, 10)
+                        .map((activity, index) => (
+                          <ActivityItem
+                            key={`${activity.type}-${activity._id}-${index}`}
+                            activity={activity}
+                          />
+                        ))
+                    )}
+                  </div>
+                  {filteredActivities.length > 10 && (
+                    <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+                      <button className="w-full py-3 text-sm font-medium text-primary hover:bg-primary/5 rounded-xl transition-colors">
+                        Load more activity
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
 
-              {/* Load More */}
-              {filteredActivities.length > 10 && (
-                <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-                  <button className="w-full py-3 text-sm font-medium text-primary hover:bg-primary/5 rounded-xl transition-colors">
-                    Load more activity
+              {activeNav === 'posts' && (
+                <div className="p-12 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    <span className="material-symbols-outlined text-3xl text-slate-400">
+                      article
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No posts yet</h3>
+                  <p className="text-slate-500 dark:text-slate-400 mb-6">
+                    You haven't published any articles yet.
+                  </p>
+                  <button className="px-6 py-2 bg-primary text-white rounded-xl font-medium hover:bg-primary-dark transition-colors">
+                    Write your first article
                   </button>
+                </div>
+              )}
+
+              {activeNav === 'saved' && (
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Saved Articles</h2>
+                  </div>
+                  {savedPosts.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <p className="text-slate-500 dark:text-slate-400">No saved articles yet.</p>
+                    </div>
+                  ) : (
+                    savedPosts.map((post, index) => (
+                      <ActivityItem key={`saved-${index}`} activity={{ ...post, type: 'saved' }} />
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeNav === 'likes' && (
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">Liked Articles</h2>
+                  </div>
+                  {likedPosts.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <p className="text-slate-500 dark:text-slate-400">No liked articles yet.</p>
+                    </div>
+                  ) : (
+                    likedPosts.map((post, index) => (
+                      <ActivityItem key={`liked-${index}`} activity={{ ...post, type: 'liked' }} />
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeNav === 'settings' && (
+                <div className="p-6">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Account Settings</h2>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <div>
+                        <h3 className="font-medium text-slate-900 dark:text-white">Profile Information</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Update your name, bio, and avatar</p>
+                      </div>
+                      <button
+                        onClick={() => setShowEditModal(true)}
+                        className="px-4 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                      >
+                        Edit Profile
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <div>
+                        <h3 className="font-medium text-slate-900 dark:text-white">Appearance</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Toggle between light and dark mode</p>
+                      </div>
+                      <button
+                        onClick={toggleTheme}
+                        className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
+                      >
+                        {isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <div>
+                        <h3 className="font-medium text-slate-900 dark:text-white">Email Notifications</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Manage your email preferences</p>
+                      </div>
+                      <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
+                        <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -478,11 +570,10 @@ const EditProfileModal: React.FC<{
         <div className="p-6 space-y-5">
           {message && (
             <div
-              className={`p-3 rounded-lg text-sm font-medium ${
-                message.type === 'success'
-                  ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
-                  : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
-              }`}
+              className={`p-3 rounded-lg text-sm font-medium ${message.type === 'success'
+                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
+                : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
+                }`}
             >
               {message.text}
             </div>
