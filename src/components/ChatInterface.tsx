@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import { useNavigate } from 'react-router-dom';
 import { sendMessage, getQuickSuggestions, ChatMessage } from '../services/ai';
@@ -16,16 +17,24 @@ interface Message {
 }
 
 export const ChatInterface: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { isAiModalOpen, toggleAiModal, isDarkMode } = useStore();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
       role: 'assistant',
-      text: "Hi! 👋 I'm the Bot & Beam AI assistant. I can help you find articles, answer tech questions, or explore our content. What would you like to know?",
+      text: t('chat.welcome'),
       timestamp: new Date()
     }
   ]);
+
+  // Update welcome message when language changes
+  useEffect(() => {
+    setMessages(prev => prev.map(msg =>
+      msg.id === 'welcome' ? { ...msg, text: t('chat.welcome') } : msg
+    ));
+  }, [i18n.language, t]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
@@ -92,7 +101,7 @@ export const ChatInterface: React.FC = () => {
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        text: "Sorry, I'm having trouble right now. You can still use the search bar above to find articles!",
+        text: t('chat.error'),
         timestamp: new Date()
       }]);
     } finally {
@@ -113,7 +122,7 @@ export const ChatInterface: React.FC = () => {
     setMessages([{
       id: 'welcome',
       role: 'assistant',
-      text: "Hi! 👋 I'm the Bot & Beam AI assistant. I can help you find articles, answer tech questions, or explore our content. What would you like to know?",
+      text: t('chat.welcome'),
       timestamp: new Date()
     }]);
     setShowSuggestions(true);
@@ -135,25 +144,23 @@ export const ChatInterface: React.FC = () => {
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:justify-end sm:px-6 pointer-events-none">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm pointer-events-auto transition-opacity" 
+      <div
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm pointer-events-auto transition-opacity"
         onClick={toggleAiModal}
       />
-      
+
       {/* Chat Window */}
-      <div className={`relative w-full sm:w-[420px] h-[85vh] sm:h-[650px] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pointer-events-auto overflow-hidden ${
-        isDarkMode 
-          ? 'bg-slate-900 border border-slate-700/50' 
+      <div className={`relative w-full sm:w-[420px] h-[85vh] sm:h-[650px] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pointer-events-auto overflow-hidden ${isDarkMode
+          ? 'bg-slate-900 border border-slate-700/50'
           : 'bg-white border border-slate-200'
-      }`}
-      style={{
-        animation: 'slideUp 0.3s ease-out'
-      }}
+        }`}
+        style={{
+          animation: 'slideUp 0.3s ease-out'
+        }}
       >
         {/* Header */}
-        <div className={`flex items-center justify-between px-5 py-4 border-b ${
-          isDarkMode ? 'border-slate-800 bg-slate-900/90' : 'border-slate-100 bg-white/90'
-        } backdrop-blur-md sticky top-0 z-10`}>
+        <div className={`flex items-center justify-between px-5 py-4 border-b ${isDarkMode ? 'border-slate-800 bg-slate-900/90' : 'border-slate-100 bg-white/90'
+          } backdrop-blur-md sticky top-0 z-10`}>
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-secondary to-purple-500 text-white shadow-lg shadow-primary/25">
@@ -166,30 +173,28 @@ export const ChatInterface: React.FC = () => {
             </div>
             <div>
               <h3 className={`font-bold font-display ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                Bot & Beam AI
+                {t('chat.header')}
               </h3>
-              <p className="text-xs text-emerald-500 font-medium">Online • Ready to help</p>
+              <p className="text-xs text-emerald-500 font-medium">{t('chat.status')}</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button 
+            <button
               onClick={clearChat}
-              className={`p-2 rounded-xl transition-colors ${
-                isDarkMode 
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-800' 
+              className={`p-2 rounded-xl transition-colors ${isDarkMode
+                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
                   : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
-              }`}
+                }`}
               title="Clear chat"
             >
               <span className="material-symbols-outlined text-[20px]">refresh</span>
             </button>
-            <button 
-              onClick={toggleAiModal} 
-              className={`p-2 rounded-xl transition-colors ${
-                isDarkMode 
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-800' 
+            <button
+              onClick={toggleAiModal}
+              className={`p-2 rounded-xl transition-colors ${isDarkMode
+                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
                   : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
-              }`}
+                }`}
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
@@ -197,9 +202,8 @@ export const ChatInterface: React.FC = () => {
         </div>
 
         {/* Messages */}
-        <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${
-          isDarkMode ? 'bg-slate-950/50' : 'bg-slate-50'
-        }`}>
+        <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${isDarkMode ? 'bg-slate-950/50' : 'bg-slate-50'
+          }`}>
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-2' : 'order-1'}`}>
@@ -210,21 +214,20 @@ export const ChatInterface: React.FC = () => {
                       <span className="material-symbols-outlined text-white text-[14px]">smart_toy</span>
                     </div>
                     <span className={`text-xs font-medium ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                      AI Assistant
+                      {t('chat.aiAssistant')}
                     </span>
                   </div>
                 )}
-                
+
                 {/* Message Bubble */}
-                <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                  msg.role === 'user' 
-                    ? 'bg-gradient-to-r from-primary to-secondary text-white rounded-br-md shadow-lg shadow-primary/20' 
+                <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.role === 'user'
+                    ? 'bg-gradient-to-r from-primary to-secondary text-white rounded-br-md shadow-lg shadow-primary/20'
                     : isDarkMode
                       ? 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-md'
                       : 'bg-white text-slate-700 border border-slate-200 rounded-bl-md shadow-sm'
-                }`}>
+                  }`}>
                   <div dangerouslySetInnerHTML={{ __html: formatMessage(msg.text) }} />
-                  
+
                   {/* Suggested Articles */}
                   {msg.suggestedArticles && msg.suggestedArticles.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-slate-600/30 space-y-2">
@@ -232,11 +235,10 @@ export const ChatInterface: React.FC = () => {
                         <button
                           key={idx}
                           onClick={() => handleArticleClick(article.slug)}
-                          className={`w-full text-left p-2.5 rounded-xl transition-all ${
-                            isDarkMode 
-                              ? 'bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50' 
+                          className={`w-full text-left p-2.5 rounded-xl transition-all ${isDarkMode
+                              ? 'bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50'
                               : 'bg-slate-50 hover:bg-slate-100 border border-slate-200'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-start gap-2">
                             <span className="material-symbols-outlined text-primary text-lg mt-0.5">article</span>
@@ -245,7 +247,7 @@ export const ChatInterface: React.FC = () => {
                                 {article.title}
                               </p>
                               <p className={`text-xs truncate ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                                Click to read →
+                                {t('chat.clickToRead')}
                               </p>
                             </div>
                           </div>
@@ -254,58 +256,54 @@ export const ChatInterface: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Timestamp */}
-                <p className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-right' : 'text-left'} ${
-                  isDarkMode ? 'text-slate-600' : 'text-slate-400'
-                }`}>
+                <p className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-right' : 'text-left'} ${isDarkMode ? 'text-slate-600' : 'text-slate-400'
+                  }`}>
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>
           ))}
-          
+
           {/* Loading Indicator */}
           {isLoading && (
             <div className="flex justify-start">
-              <div className={`rounded-2xl rounded-bl-md px-4 py-3 ${
-                isDarkMode 
-                  ? 'bg-slate-800 border border-slate-700' 
+              <div className={`rounded-2xl rounded-bl-md px-4 py-3 ${isDarkMode
+                  ? 'bg-slate-800 border border-slate-700'
                   : 'bg-white border border-slate-200 shadow-sm'
-              }`}>
+                }`}>
                 <div className="flex gap-1.5 items-center">
                   <span className={`w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s] ${isDarkMode ? 'bg-primary' : 'bg-primary'}`}></span>
                   <span className={`w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s] ${isDarkMode ? 'bg-secondary' : 'bg-secondary'}`}></span>
                   <span className={`w-2 h-2 rounded-full animate-bounce ${isDarkMode ? 'bg-purple-500' : 'bg-purple-500'}`}></span>
                   <span className={`text-xs ml-2 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                    Thinking...
+                    {t('chat.thinking')}
                   </span>
                 </div>
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
 
         {/* Quick Suggestions */}
         {showSuggestions && messages.length <= 1 && (
-          <div className={`px-4 py-3 border-t ${
-            isDarkMode ? 'border-slate-800 bg-slate-900/50' : 'border-slate-100 bg-white/50'
-          }`}>
+          <div className={`px-4 py-3 border-t ${isDarkMode ? 'border-slate-800 bg-slate-900/50' : 'border-slate-100 bg-white/50'
+            }`}>
             <p className={`text-xs font-medium mb-2 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-              Try asking:
+              {t('chat.tryAsking')}
             </p>
             <div className="flex flex-wrap gap-2">
               {quickSuggestions.slice(0, 3).map((suggestion, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className={`px-3 py-1.5 text-xs rounded-full transition-all ${
-                    isDarkMode 
-                      ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700' 
+                  className={`px-3 py-1.5 text-xs rounded-full transition-all ${isDarkMode
+                      ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 border border-slate-200'
-                  }`}
+                    }`}
                 >
                   {suggestion}
                 </button>
@@ -315,25 +313,23 @@ export const ChatInterface: React.FC = () => {
         )}
 
         {/* Input */}
-        <div className={`p-4 border-t ${
-          isDarkMode ? 'border-slate-800 bg-slate-900' : 'border-slate-100 bg-white'
-        }`}>
+        <div className={`p-4 border-t ${isDarkMode ? 'border-slate-800 bg-slate-900' : 'border-slate-100 bg-white'
+          }`}>
           <form onSubmit={handleSend} className="relative flex items-center gap-2">
             <div className="relative flex-1">
-              <input 
+              <input
                 ref={inputRef}
-                type="text" 
+                type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me anything..." 
-                className={`w-full h-12 rounded-xl border-2 pl-4 pr-12 text-sm transition-all ${
-                  isDarkMode 
-                    ? 'bg-slate-800 border-slate-700 focus:border-primary focus:bg-slate-800 text-white placeholder:text-slate-500' 
+                placeholder={t('chat.placeholder')}
+                className={`w-full h-12 rounded-xl border-2 pl-4 pr-12 text-sm transition-all ${isDarkMode
+                    ? 'bg-slate-800 border-slate-700 focus:border-primary focus:bg-slate-800 text-white placeholder:text-slate-500'
                     : 'bg-slate-50 border-slate-200 focus:border-primary focus:bg-white text-slate-900 placeholder:text-slate-400'
-                } focus:ring-2 focus:ring-primary/20 focus:outline-none`}
+                  } focus:ring-2 focus:ring-primary/20 focus:outline-none`}
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={!input.trim() || isLoading}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-primary/25 transition-all active:scale-95"
               >
@@ -344,11 +340,11 @@ export const ChatInterface: React.FC = () => {
             </div>
           </form>
           <p className={`text-[10px] text-center mt-2 ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`}>
-            AI may make mistakes. Verify important information.
+            {t('chat.disclaimer')}
           </p>
         </div>
       </div>
-      
+
       <style>{`
         @keyframes slideUp {
           from {

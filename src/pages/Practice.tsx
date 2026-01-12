@@ -10,7 +10,11 @@ import {
 } from '../services/coding';
 import { CodingChallenge, UserCodingProfile, getDifficultyBg, getXpForLevel } from '../types/coding';
 
+import { useTranslation } from 'react-i18next';
+import { toPlainText } from '../utils/portableText';
+
 const Practice: React.FC = () => {
+  const { t } = useTranslation();
   const { subscriber } = useAuth();
   const [challenges, setChallenges] = useState<CodingChallenge[]>([]);
   const [dailyChallenge, setDailyChallenge] = useState<CodingChallenge | null>(null);
@@ -26,7 +30,15 @@ const Practice: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Weekly streak days
-  const weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const weekDays = [
+    t('practice.weekDays.mon', 'M'),
+    t('practice.weekDays.tue', 'T'),
+    t('practice.weekDays.wed', 'W'),
+    t('practice.weekDays.thu', 'T'),
+    t('practice.weekDays.fri', 'F'),
+    t('practice.weekDays.sat', 'S'),
+    t('practice.weekDays.sun', 'S')
+  ];
   const [streakDays, setStreakDays] = useState([true, true, true, true, true, false, false]);
 
   // Keyboard shortcut for search (Ctrl/Cmd + K)
@@ -136,8 +148,8 @@ const Practice: React.FC = () => {
                 <span className="material-symbols-outlined text-white text-xl">terminal</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white font-display">CodeMaster</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Arena</p>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white font-display">{t('practice.title')}</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t('practice.subtitle')}</p>
               </div>
             </div>
 
@@ -150,7 +162,7 @@ const Practice: React.FC = () => {
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search challenges, tags, topics..."
+                  placeholder={t('practice.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setSearchFocused(true)}
@@ -174,16 +186,16 @@ const Practice: React.FC = () => {
             </div>
 
             <nav className="hidden md:flex items-center gap-6">
-              <Link to="/practice" className="text-emerald-600 dark:text-emerald-400 font-medium text-sm">Arena</Link>
-              <Link to="/challenges" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">Quests</Link>
-              <Link to="/leaderboard" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">Leaderboard</Link>
-              <Link to="/submissions" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">Discuss</Link>
+              <Link to="/practice" className="text-emerald-600 dark:text-emerald-400 font-medium text-sm">{t('practice.nav.arena')}</Link>
+              <Link to="/challenges" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">{t('practice.nav.quests')}</Link>
+              <Link to="/leaderboard" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">{t('practice.nav.leaderboard')}</Link>
+              <Link to="/submissions" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-sm">{t('practice.nav.discuss')}</Link>
             </nav>
 
             {profile && (
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">Level {profile.level}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{t('practice.level')} {profile.level}</p>
                   <div className="w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full"
@@ -212,16 +224,16 @@ const Practice: React.FC = () => {
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="material-symbols-outlined text-amber-500 dark:text-amber-400">bolt</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-semibold text-sm">Daily Boss Battle</span>
+                    <span className="text-amber-600 dark:text-amber-400 font-semibold text-sm">{t('practice.dailyBoss')}</span>
                     <span className="ml-auto flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm">
                       <span className="material-symbols-outlined text-sm">timer</span>
-                      {hoursLeft}h {minutesLeft}m left
+                      {hoursLeft}h {minutesLeft}m {t('practice.timeLeft')}
                     </span>
                   </div>
 
                   <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{dailyChallenge.title}</h2>
                   <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 line-clamp-2">
-                    Master the art of pointer manipulation. A classic challenge that tests your understanding of data structures.
+                    {toPlainText(dailyChallenge.description) || t('practice.defaultDailyDesc', 'Master the art of pointer manipulation. A classic challenge that tests your understanding of data structures.')}
                   </p>
 
                   <div className="flex items-center gap-4 mb-6">
@@ -231,7 +243,7 @@ const Practice: React.FC = () => {
                     </span>
                     <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm">
                       <span className="material-symbols-outlined text-sm">group</span>
-                      {dailyChallenge.totalSolved?.toLocaleString() || '1.2k'} Solved
+                      {dailyChallenge.totalSolved?.toLocaleString() || '1.2k'} {t('practice.solved')}
                     </span>
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${getDifficultyBg(dailyChallenge.difficulty)}`}>
                       {dailyChallenge.difficulty.charAt(0).toUpperCase() + dailyChallenge.difficulty.slice(1)}
@@ -243,7 +255,7 @@ const Practice: React.FC = () => {
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-amber-500/25 transition"
                   >
                     <span className="material-symbols-outlined text-sm">play_circle</span>
-                    Start Challenge
+                    {t('practice.startChallenge')}
                   </Link>
                 </div>
               </div>
@@ -257,7 +269,7 @@ const Practice: React.FC = () => {
                 </span>
                 <input
                   type="text"
-                  placeholder="Search challenges..."
+                  placeholder={t('practice.mobileSearchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -277,14 +289,14 @@ const Practice: React.FC = () => {
             {searchQuery && (
               <div className="flex items-center gap-2 mb-4 text-sm">
                 <span className="text-slate-500 dark:text-slate-400">
-                  Found <span className="text-emerald-600 dark:text-emerald-400 font-medium">{filteredChallenges.length}</span> challenges
-                  {searchQuery && <span> for "<span className="text-slate-900 dark:text-white">{searchQuery}</span>"</span>}
+                  {t('practice.found')} <span className="text-emerald-600 dark:text-emerald-400 font-medium">{filteredChallenges.length}</span> {t('practice.challenges')}
+                  {searchQuery && <span> {t('practice.for')} "<span className="text-slate-900 dark:text-white">{searchQuery}</span>"</span>}
                 </span>
                 <button
                   onClick={() => setSearchQuery('')}
                   className="text-slate-500 hover:text-slate-900 dark:text-slate-500 dark:hover:text-white ml-auto"
                 >
-                  Clear search
+                  {t('practice.clearSearch')}
                 </button>
               </div>
             )}
@@ -330,7 +342,7 @@ const Practice: React.FC = () => {
               ) : filteredChallenges.length === 0 ? (
                 <div className="text-center py-12">
                   <span className="material-symbols-outlined text-4xl text-slate-400 dark:text-slate-600 mb-3">search_off</span>
-                  <p className="text-slate-500 dark:text-slate-400">No challenges found</p>
+                  <p className="text-slate-500 dark:text-slate-400">{t('practice.noChallenges')}</p>
                 </div>
               ) : (
                 filteredChallenges.map((challenge) => (
@@ -389,12 +401,12 @@ const Practice: React.FC = () => {
               {/* Random Quest Button */}
               <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-purple-500/20 dark:border-purple-500/30 rounded-xl p-4 text-purple-600 dark:text-purple-400 font-medium transition">
                 <span className="material-symbols-outlined">casino</span>
-                Random Quest - Test your luck & skills
+                {t('practice.randomQuest')}
               </button>
 
               {/* Load More */}
               <button className="w-full py-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm transition">
-                Load More Quests
+                {t('practice.loadMore')}
               </button>
             </div>
           </div>
@@ -405,7 +417,7 @@ const Practice: React.FC = () => {
             <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
               <div className="flex items-center gap-2 mb-4">
                 <span className="material-symbols-outlined text-orange-500 dark:text-orange-400">local_fire_department</span>
-                <span className="text-slate-900 dark:text-white font-semibold">Weekly Streak</span>
+                <span className="text-slate-900 dark:text-white font-semibold">{t('practice.weeklyStreak')}</span>
               </div>
 
               <div className="flex items-center justify-between mb-3">
@@ -422,18 +434,18 @@ const Practice: React.FC = () => {
               </div>
 
               <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
-                Keep it up! 2 days to a 7-day bonus.
+                {t('practice.streakMessage')}
               </p>
             </div>
 
             {/* Your Progress */}
             <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none">
-              <h3 className="text-slate-900 dark:text-white font-semibold mb-4">Your Progress</h3>
+              <h3 className="text-slate-900 dark:text-white font-semibold mb-4">{t('practice.yourProgress')}</h3>
 
               {/* Easy */}
               <div className="mb-3">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-green-600 dark:text-green-400">Easy</span>
+                  <span className="text-green-600 dark:text-green-400">{t('practice.difficulty.easy')}</span>
                   <span className="text-slate-500 dark:text-slate-400">{profile?.easySolved || 0}/100</span>
                 </div>
                 <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -447,7 +459,7 @@ const Practice: React.FC = () => {
               {/* Medium */}
               <div className="mb-3">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-yellow-600 dark:text-yellow-400">Medium</span>
+                  <span className="text-yellow-600 dark:text-yellow-400">{t('practice.difficulty.medium')}</span>
                   <span className="text-slate-500 dark:text-slate-400">{profile?.mediumSolved || 0}/150</span>
                 </div>
                 <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -461,7 +473,7 @@ const Practice: React.FC = () => {
               {/* Hard */}
               <div className="mb-4">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-red-600 dark:text-red-400">Hard</span>
+                  <span className="text-red-600 dark:text-red-400">{t('practice.difficulty.hard')}</span>
                   <span className="text-slate-500 dark:text-slate-400">{profile?.hardSolved || 0}/50</span>
                 </div>
                 <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -474,13 +486,20 @@ const Practice: React.FC = () => {
 
               {/* Weak Areas */}
               <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                <p className="text-xs text-slate-500 mb-2">Weak Areas</p>
+                <p className="text-xs text-slate-500 mb-2">{t('practice.weakAreas')}</p>
                 <div className="flex flex-wrap gap-2">
-                  {['Dynamic Programming', 'Graph Theory', 'Bit Manipulation'].map((area) => (
-                    <span key={area} className="px-2 py-1 bg-red-500/10 text-red-600 dark:text-red-400 rounded text-xs">
-                      {area}
-                    </span>
-                  ))}
+                  {['Dynamic Programming', 'Graph Theory', 'Bit Manipulation'].map((area) => {
+                    // Map area to translation key
+                    const key = area === 'Dynamic Programming' ? 'dynamicProgramming' :
+                      area === 'Graph Theory' ? 'graphTheory' :
+                        area === 'Bit Manipulation' ? 'bitManipulation' : '';
+
+                    return (
+                      <span key={area} className="px-2 py-1 bg-red-500/10 text-red-600 dark:text-red-400 rounded text-xs">
+                        {key ? t(`practice.weakAreasTags.${key}`, area) : area}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -520,7 +539,7 @@ const Practice: React.FC = () => {
       <div className="border-t border-slate-200 dark:border-slate-800 mt-12 bg-slate-50 dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-slate-500 text-sm">
-            © 2024 CodeMaster Arena. Level up your coding skills.
+            {t('footer.copyright')}
           </p>
         </div>
       </div>
@@ -529,6 +548,3 @@ const Practice: React.FC = () => {
 };
 
 export default Practice;
-
-// Force HMR update
-

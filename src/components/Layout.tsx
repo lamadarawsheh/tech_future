@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChatInterface } from './ChatInterface';
@@ -11,6 +12,17 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { isDarkMode, toggleTheme, toggleAiModal } = useStore();
+  const { t, i18n } = useTranslation();
+
+  useEffect(() => {
+    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'ar' : 'en';
+    i18n.changeLanguage(newLang);
+  };
   const location = useLocation();
   const navigate = useNavigate();
   const { user, subscriber, loading: authLoading, signOut } = useAuth();
@@ -178,7 +190,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     : 'text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary'
                     }`}
                 >
-                  Home
+                  {t('nav.home')}
                 </Link>
                 <Link
                   to="/trending"
@@ -187,7 +199,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
                 >
-                  Trending
+                  {t('nav.trending')}
                 </Link>
                 <Link
                   to="/categories"
@@ -196,7 +208,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
                 >
-                  Categories
+                  {t('nav.categories')}
                 </Link>
                 {/* Coding Platform Dropdown */}
                 <div className="relative group">
@@ -213,7 +225,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                   >
                     <span className="relative">
                       <span className="animate-text-shine bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent font-bold">
-                        Practice
+                        {t('nav.practice')}
                       </span>
                       <span className="absolute -top-1 -right-2 flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -234,9 +246,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                           terminal
                         </span>
                         <div>
-                          <p className="font-medium">Arena</p>
+                          <p className="font-medium">{t('nav.practiceArena')}</p>
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Solve challenges
+                            {t('nav.solveChallenges')}
                           </p>
                         </div>
                       </Link>
@@ -248,9 +260,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                           school
                         </span>
                         <div>
-                          <p className="font-medium">Learning Paths</p>
+                          <p className="font-medium">{t('nav.learningPaths')}</p>
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Structured courses
+                            {t('nav.structuredCourses')}
                           </p>
                         </div>
                       </Link>
@@ -262,9 +274,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                           leaderboard
                         </span>
                         <div>
-                          <p className="font-medium">Leaderboard</p>
+                          <p className="font-medium">{t('nav.leaderboard')}</p>
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Rankings & XP
+                            {t('nav.rankings')}
                           </p>
                         </div>
                       </Link>
@@ -276,9 +288,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                           history
                         </span>
                         <div>
-                          <p className="font-medium">My Submissions</p>
+                          <p className="font-medium">{t('nav.mySubmissions')}</p>
                           <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Track progress
+                            {t('nav.trackProgress')}
                           </p>
                         </div>
                       </Link>
@@ -292,7 +304,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
                 >
-                  Newsletter
+                  {t('nav.newsletter')}
                 </Link>
               </nav>
             </div>
@@ -327,7 +339,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     ? 'border-primary ring-2 ring-primary/20'
                     : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'
                     }`}
-                  placeholder="Search articles, authors..."
+                  placeholder={t('nav.searchPlaceholder')}
                   type="text"
                 />
                 {searchQuery ? (
@@ -367,8 +379,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                             </span>
                             <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                               {searchQuery
-                                ? `Results for "${searchQuery}"`
-                                : 'Start typing to search...'}
+                                ? `${t('nav.resultsFor')} "${searchQuery}"`
+                                : t('nav.startTyping')}
                             </span>
                           </div>
                           {loadingSuggestions && (
@@ -381,7 +393,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                         <div className="px-4 py-8 text-center">
                           <div className="w-10 h-10 border-3 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-3" />
                           <p className="text-slate-500 dark:text-slate-400 text-sm">
-                            Searching...
+                            {t('nav.searching')}
                           </p>
                         </div>
                       ) : suggestions.length === 0 &&
@@ -391,10 +403,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                             search_off
                           </span>
                           <p className="text-slate-500 dark:text-slate-400 text-sm">
-                            No results found for "{searchQuery}"
+                            {t('nav.noResults')} "{searchQuery}"
                           </p>
                           <p className="text-slate-400 dark:text-slate-500 text-xs mt-1">
-                            Try different keywords
+                            {t('nav.tryDifferent')}
                           </p>
                         </div>
                       ) : (
@@ -408,7 +420,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                                     article
                                   </span>
                                   <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                                    Articles
+                                    {t('nav.articles')}
                                   </span>
                                 </div>
                                 {suggestions
@@ -473,7 +485,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                                     category
                                   </span>
                                   <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                                    Categories
+                                    {t('nav.categories')}
                                   </span>
                                 </div>
                                 <div className="px-3 py-1 flex flex-wrap gap-2">
@@ -516,7 +528,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                                     person
                                   </span>
                                   <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                                    Authors
+                                    {t('nav.authors')}
                                   </span>
                                 </div>
                                 {suggestions
@@ -595,7 +607,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                                 type="submit"
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-semibold rounded-lg transition-colors"
                               >
-                                View all
+                                {t('nav.viewAll')}
                                 <span className="material-symbols-outlined text-sm">
                                   arrow_forward
                                 </span>
@@ -615,6 +627,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 <span className="material-symbols-outlined text-[20px]">
                   {isDarkMode ? 'light_mode' : 'dark_mode'}
                 </span>
+              </button>
+
+              <button
+                onClick={toggleLanguage}
+                aria-label="Toggle Language"
+                className="flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-sm"
+              >
+                {i18n.language === 'en' ? 'AR' : 'EN'}
               </button>
               {/* Auth Button / User Menu */}
               {isAuthenticated ? (
@@ -659,7 +679,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                             <span className="material-symbols-outlined text-[18px]">
                               person
                             </span>
-                            My Profile
+                            {t('nav.myProfile')}
                           </Link>
                           <Link
                             to="/profile"
@@ -669,7 +689,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                             <span className="material-symbols-outlined text-[18px]">
                               bookmark
                             </span>
-                            Saved Articles
+                            {t('nav.savedArticles')}
                           </Link>
                           <Link
                             to="/Submissions"
@@ -679,7 +699,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                             <span className="material-symbols-outlined text-[18px]">
                               check_circle
                             </span>
-                            My Submissions
+                            {t('nav.mySubmissions')}
                           </Link>
                         </div>
                         <div className="p-2">
@@ -693,7 +713,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                             <span className="material-symbols-outlined text-[18px]">
                               logout
                             </span>
-                            Sign out
+                            {t('nav.signOut')}
                           </button>
                         </div>
                       </div>
@@ -706,7 +726,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                   className="flex items-center justify-center gap-1.5 rounded-full bg-slate-900 dark:bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white dark:text-slate-900 transition-all hover:bg-primary dark:hover:bg-primary dark:hover:text-white hover:shadow-lg hover:shadow-primary/25 active:scale-95 whitespace-nowrap min-w-[80px] sm:min-w-[100px]"
                 >
                   <span className="material-symbols-outlined text-[14px] sm:text-[16px]">login</span>
-                  <span>Sign In</span>
+                  <span>{t('nav.signIn')}</span>
                 </button>
               )}
               <button
@@ -734,7 +754,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
       >
         <div className="flex flex-col h-full p-4">
           <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Menu</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('nav.menu')}</h2>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -751,7 +771,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
             >
               <span className="material-symbols-outlined mr-3">home</span>
-              <span>Home</span>
+              <span>{t('nav.home')}</span>
             </Link>
             <Link
               to="/trending"
@@ -759,7 +779,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
             >
               <span className="material-symbols-outlined mr-3">trending_up</span>
-              <span>Trending</span>
+              <span>{t('nav.trending')}</span>
             </Link>
             <Link
               to="/categories"
@@ -767,7 +787,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
             >
               <span className="material-symbols-outlined mr-3">category</span>
-              <span>Categories</span>
+              <span>{t('nav.categories')}</span>
             </Link>
             <Link
               to="/about"
@@ -775,7 +795,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
             >
               <span className="material-symbols-outlined mr-3">info</span>
-              <span>About</span>
+              <span>{t('nav.about')}</span>
             </Link>
             <div className="space-y-1">
               <button
@@ -786,7 +806,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                   <span className="material-symbols-outlined mr-3">code</span>
                   <span className="relative">
                     <span className="animate-text-shine bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent font-bold">
-                      Practice
+                      {t('nav.practice')}
                     </span>
                     <span className="absolute -top-1 -right-4 flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -812,9 +832,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                       terminal
                     </span>
                     <div>
-                      <p className="font-medium">Arena</p>
+                      <p className="font-medium">{t('nav.practiceArena')}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Solve challenges
+                        {t('nav.solveChallenges')}
                       </p>
                     </div>
                   </Link>
@@ -827,9 +847,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                       school
                     </span>
                     <div>
-                      <p className="font-medium">Learning Paths</p>
+                      <p className="font-medium">{t('nav.learningPaths')}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Structured courses
+                        {t('nav.structuredCourses')}
                       </p>
                     </div>
                   </Link>
@@ -842,9 +862,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                       leaderboard
                     </span>
                     <div>
-                      <p className="font-medium">Leaderboard</p>
+                      <p className="font-medium">{t('nav.leaderboard')}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Rankings & XP
+                        {t('nav.rankings')}
                       </p>
                     </div>
                   </Link>
@@ -857,9 +877,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                       description
                     </span>
                     <div>
-                      <p className="font-medium">My Submissions</p>
+                      <p className="font-medium">{t('nav.mySubmissions')}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        View your solutions
+                        {t('nav.viewSolutions')}
                       </p>
                     </div>
                   </Link>
@@ -878,7 +898,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 className="w-full flex items-center justify-center py-2 px-4 bg-slate-900 hover:bg-primary text-white font-medium rounded-lg transition-colors dark:bg-white dark:text-slate-900 dark:hover:bg-primary dark:hover:text-white"
               >
                 <span className="material-symbols-outlined mr-2">login</span>
-                <span>Sign In</span>
+                <span>{t('nav.signIn')}</span>
               </button>
             ) : (
               <button
@@ -889,7 +909,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 className="w-full flex items-center justify-center py-2 px-4 text-red-600 hover:bg-red-50 font-medium rounded-lg transition-colors dark:text-red-400 dark:hover:bg-red-900/30"
               >
                 <span className="material-symbols-outlined mr-2">logout</span>
-                <span>Sign Out</span>
+                <span>{t('nav.signOut')}</span>
               </button>
             )}
 
@@ -902,12 +922,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               {isDarkMode ? (
                 <>
                   <span className="material-symbols-outlined mr-3">light_mode</span>
-                  <span>Light Mode</span>
+                  <span>{t('nav.lightMode')}</span>
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined mr-3">dark_mode</span>
-                  <span>Dark Mode</span>
+                  <span>{t('nav.darkMode')}</span>
                 </>
               )}
             </button>
@@ -964,15 +984,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 </span>
               </div>
               <p className="text-slate-500 text-sm leading-relaxed">
-                Exploring the boundaries of code, design, and artificial
-                intelligence.
+                {t('footer.tagline')}
               </p>
             </div>
 
             {/* Contact Us */}
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 font-display">
-                Contact Us
+                {t('footer.contactUs')}
               </h3>
               <ul className="space-y-4 text-sm text-slate-600 dark:text-slate-400">
                 <li className="flex items-start gap-3">
@@ -999,7 +1018,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
             {/* Quick Links */}
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 font-display">
-                Quick Links
+                {t('footer.quickLinks')}
               </h3>
               <ul className="space-y-3 text-sm font-medium text-slate-600 dark:text-slate-400">
                 <li>
@@ -1007,7 +1026,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     to="/"
                     className="hover:text-primary transition-colors"
                   >
-                    Home
+                    {t('nav.home')}
                   </Link>
                 </li>
                 <li>
@@ -1015,7 +1034,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     to="/trending"
                     className="hover:text-primary transition-colors"
                   >
-                    Trending
+                    {t('nav.trending')}
                   </Link>
                 </li>
                 <li>
@@ -1023,7 +1042,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     to="/categories"
                     className="hover:text-primary transition-colors"
                   >
-                    Categories
+                    {t('nav.categories')}
                   </Link>
                 </li>
                 <li>
@@ -1031,7 +1050,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     to="/practice"
                     className="hover:text-primary transition-colors"
                   >
-                    Practice Arena
+                    {t('nav.practiceArena')}
                   </Link>
                 </li>
               </ul>
@@ -1040,7 +1059,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
             {/* Follow Us */}
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 font-display">
-                Follow Us
+                {t('footer.followUs')}
               </h3>
               <div className="flex gap-4">
                 {/* Twitter */}
@@ -1088,20 +1107,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
 
           <div className="pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm font-medium text-slate-500">
-              © {new Date().getFullYear()} Bot & Beam. All rights reserved.
+              © {new Date().getFullYear()} Bot & Beam. {t('footer.rights')}
             </p>
             <div className="flex gap-6 text-sm font-medium text-slate-500">
               <Link
                 to="/privacy"
                 className="hover:text-primary transition-colors"
               >
-                Privacy Policy
+                {t('footer.privacyPolicy')}
               </Link>
               <Link
                 to="/terms"
                 className="hover:text-primary transition-colors"
               >
-                Terms of Service
+                {t('footer.termsOfService')}
               </Link>
             </div>
           </div>

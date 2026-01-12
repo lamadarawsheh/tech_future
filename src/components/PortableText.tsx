@@ -1,5 +1,5 @@
-// components/PortableText.tsx
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { urlFor } from '../lib/sanity';
 
 interface PortableTextProps {
@@ -46,11 +46,12 @@ const languageConfig: Record<string, { name: string; color: string }> = {
 };
 
 // Code Block Component
-const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }> = ({ 
-  code, 
+const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }> = ({
+  code,
   language = 'text',
-  filename 
+  filename
 }) => {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -77,7 +78,7 @@ const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }
             <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
             <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
           </div>
-          
+
           {/* Language badge */}
           <div className="flex items-center gap-2">
             <span className={`text-xs font-semibold ${langConfig.color}`}>
@@ -95,16 +96,15 @@ const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }
         {/* Copy button */}
         <button
           onClick={handleCopy}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-            copied
-              ? 'bg-green-500/20 text-green-400'
-              : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
-          }`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${copied
+            ? 'bg-green-500/20 text-green-400'
+            : 'bg-slate-700/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200'
+            }`}
         >
           <span className="material-symbols-outlined text-[16px]">
             {copied ? 'check' : 'content_copy'}
           </span>
-          <span>{copied ? 'Copied!' : 'Copy'}</span>
+          <span>{copied ? t('portableText.copied') : t('portableText.copy')}</span>
         </button>
       </div>
 
@@ -130,7 +130,7 @@ const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }
 
       {/* Footer with line count */}
       <div className="px-4 py-2 bg-[#161b22] border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-500">
-        <span>{lines.length} lines</span>
+        <span>{lines.length} {t('portableText.lines')}</span>
         <span className="flex items-center gap-1">
           <span className="material-symbols-outlined text-[14px]">code</span>
           {langConfig.name}
@@ -145,30 +145,32 @@ const highlightSyntax = (line: string, language: string): React.ReactNode => {
   // Keywords for different languages
   const jsKeywords = /\b(const|let|var|function|return|if|else|for|while|class|import|export|from|default|async|await|try|catch|throw|new|this|super|extends|implements|interface|type|enum|null|undefined|true|false)\b/g;
   const pythonKeywords = /\b(def|class|import|from|return|if|elif|else|for|while|try|except|finally|with|as|lambda|yield|None|True|False|and|or|not|in|is)\b/g;
-  
+
   // Strings
   const strings = /(["'`])(?:(?!\1)[^\\]|\\.)*\1/g;
-  
+
   // Comments
   const comments = /(\/\/.*$|\/\*[\s\S]*?\*\/|#.*$)/gm;
-  
+
   // Numbers
   const numbers = /\b(\d+\.?\d*)\b/g;
-  
+
   // Functions
   const functions = /\b([a-zA-Z_]\w*)\s*(?=\()/g;
 
   let result = line;
-  
+
   // This is a simplified highlighter - for production, use Prism.js or highlight.js
   // For now, we'll just return the plain text with some basic highlighting via CSS
-  
+
   return <span>{line || ' '}</span>;
 };
 
 export const PortableText: React.FC<PortableTextProps> = ({ content, className = '' }) => {
+  const { t } = useTranslation();
+
   if (!content || !Array.isArray(content) || content.length === 0) {
-    return <p className="text-slate-500 dark:text-slate-400">No content available.</p>;
+    return <p className="text-slate-500 dark:text-slate-400">{t('portableText.noContent')}</p>;
   }
 
   const renderNode = (node: any, index: number) => {
@@ -176,7 +178,7 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
 
     // Handle block content
     if (node._type === 'block') {
-      const { style = 'normal', children, listItem, level } = node;
+      const { style = 'normal', children, listItem } = node;
 
       const renderedChildren = children?.map((child: any, i: number) => {
         if (child._type === 'span') {
@@ -186,8 +188,8 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
           if (child.marks?.includes('underline')) className += 'underline ';
           if (child.marks?.includes('code')) {
             return (
-              <code 
-                key={i} 
+              <code
+                key={i}
                 className="font-mono text-sm bg-slate-100 dark:bg-slate-800 text-primary px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700"
               >
                 {child.text}
@@ -218,7 +220,7 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
             <blockquote key={index} className="relative border-l-4 border-primary pl-6 py-4 my-6 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-800/50 dark:to-transparent rounded-r-xl">
               <span className="absolute -left-3 -top-2 text-4xl text-primary/30 font-serif">"</span>
               <div className="italic text-slate-700 dark:text-slate-300 text-lg">
-            {renderedChildren}
+                {renderedChildren}
               </div>
             </blockquote>
           );
@@ -234,34 +236,32 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
     }
 
     // Handle images
- if (node._type === 'image' && node.asset) {
-  const imageUrl = urlFor(node)
-    .width(1200)
-    .url() || '';
-  
-  return (
+    if (node._type === 'image' && node.asset) {
+      const imageUrl = urlFor(node);
+
+      return (
         <figure key={index} className="my-8">
           <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-lg">
-      <img 
-        src={imageUrl} 
-        alt={node.alt || 'Article image'} 
-        className="w-full h-auto object-cover max-h-[500px] mx-auto"
-        loading="lazy"
-      />
+            <img
+              src={imageUrl}
+              alt={node.alt || t('portableText.articleImage')}
+              className="w-full h-auto object-cover max-h-[500px] mx-auto"
+              loading="lazy"
+            />
           </div>
-      {node.caption && (
+          {node.caption && (
             <figcaption className="text-center text-sm text-slate-500 dark:text-slate-400 mt-3 italic">
-          {node.caption}
+              {node.caption}
             </figcaption>
-      )}
+          )}
         </figure>
-  );
-}
+      );
+    }
 
     // Handle code blocks
     if (node._type === 'code') {
       return (
-        <CodeBlock 
+        <CodeBlock
           key={index}
           code={node.code || ''}
           language={node.language}
@@ -272,7 +272,6 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
 
     // Handle custom components
     if (node._type === 'customComponent') {
-      // Handle custom components if needed
       return null;
     }
 

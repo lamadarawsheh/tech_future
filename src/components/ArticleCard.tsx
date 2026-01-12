@@ -1,8 +1,10 @@
-// components/ArticleCard.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { BlogPost, getSlug } from '../types';
+
+import { getTranslatedPost } from '../utils/mockTranslations';
 
 interface ArticleCardProps {
   post: BlogPost;
@@ -10,14 +12,19 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ post, variant = 'list' }) => {
-  const articleSlug = getSlug(post.slug);
-  const imageUrl = typeof post.image === 'string' ? post.image : post.image?.asset?.url || '';
-  const authorImage = typeof post.author?.image === 'string' ? post.author.image : '';
+  const { t, i18n } = useTranslation();
+
+  // Derive the post to display based on current language
+  const displayPost = getTranslatedPost(post, i18n.language) || post;
+
+  const articleSlug = getSlug(displayPost.slug);
+  const imageUrl = typeof displayPost.image === 'string' ? displayPost.image : displayPost.image?.asset?.url || '';
+  const authorImage = typeof displayPost.author?.image === 'string' ? displayPost.author.image : '';
 
   // Grid variant - compact card layout
   if (variant === 'grid') {
     return (
-      <Link 
+      <Link
         to={`/article/${articleSlug}`}
         className="group flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300"
       >
@@ -33,7 +40,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ post, variant = 'list'
         )}
         <div className="flex-1 p-4 flex flex-col">
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {post.categories?.slice(0, 1).map((category) => (
+            {displayPost.categories?.slice(0, 1).map((category) => (
               <span
                 key={category._id}
                 className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-primary/10 text-primary"
@@ -43,10 +50,10 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ post, variant = 'list'
             ))}
           </div>
           <h3 className="text-base font-bold text-slate-900 dark:text-white line-clamp-2 group-hover:text-primary transition-colors">
-            {post.title}
+            {displayPost.title}
           </h3>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 line-clamp-2 flex-1">
-            {post.excerpt}
+            {displayPost.excerpt}
           </p>
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
             <div className="flex items-center gap-2">
@@ -54,21 +61,21 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ post, variant = 'list'
                 <img
                   className="h-6 w-6 rounded-full"
                   src={authorImage}
-                  alt={post.author?.name || 'Author'}
+                  alt={displayPost.author?.name || 'Author'}
                 />
               )}
               <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                {post.author?.name}
+                {displayPost.author?.name}
               </span>
             </div>
             <div className="flex items-center gap-2 text-[10px] text-slate-400">
               <span className="flex items-center gap-0.5">
                 <span className="material-symbols-outlined text-[12px]">visibility</span>
-                {post.viewCount || 0}
+                {displayPost.viewCount || 0}
               </span>
               <span className="flex items-center gap-0.5">
                 <span className="material-symbols-outlined text-[12px]">favorite</span>
-                {post.likeCount || 0}
+                {displayPost.likeCount || 0}
               </span>
             </div>
           </div>
@@ -85,14 +92,14 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ post, variant = 'list'
           <img
             className="h-48 w-full object-cover"
             src={imageUrl}
-            alt={post.title}
+            alt={displayPost.title}
           />
         </div>
       )}
       <div className="flex-1 p-6 flex flex-col justify-between">
         <div className="flex-1">
           <div className="flex flex-wrap gap-2 mb-2">
-            {post.categories?.map((category) => (
+            {displayPost.categories?.map((category) => (
               <span
                 key={category._id}
                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary"
@@ -101,32 +108,32 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ post, variant = 'list'
               </span>
             ))}
           </div>
-          <Link 
-            to={`/article/${articleSlug}`} 
-  className="block mt-2"
->
+          <Link
+            to={`/article/${articleSlug}`}
+            className="block mt-2"
+          >
             <h3 className="text-xl font-semibold text-slate-900 dark:text-white line-clamp-2">
-              {post.title}
+              {displayPost.title}
             </h3>
             <p className="mt-3 text-base text-slate-500 dark:text-slate-400 line-clamp-3">
-              {post.excerpt}
+              {displayPost.excerpt}
             </p>
           </Link>
         </div>
-        
+
         {/* Engagement Stats */}
         <div className="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
           <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
             <span className="material-symbols-outlined text-[14px]">visibility</span>
-            {post.viewCount || 0}
+            {displayPost.viewCount || 0}
           </span>
           <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
             <span className="material-symbols-outlined text-[14px]">favorite</span>
-            {post.likeCount || 0}
+            {displayPost.likeCount || 0}
           </span>
           <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
             <span className="material-symbols-outlined text-[14px]">chat_bubble</span>
-            {post.commentCount || 0}
+            {displayPost.commentCount || 0}
           </span>
         </div>
 
@@ -136,22 +143,22 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ post, variant = 'list'
               <img
                 className="h-10 w-10 rounded-full"
                 src={authorImage}
-                alt={post.author?.name || 'Author'}
+                alt={displayPost.author?.name || 'Author'}
               />
             )}
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-slate-900 dark:text-white">
-              {post.author?.name}
+              {displayPost.author?.name}
             </p>
             <div className="flex space-x-1 text-sm text-slate-500 dark:text-slate-400">
-              {post.publishedDate && (
-              <time dateTime={post.publishedDate}>
-                {format(new Date(post.publishedDate), 'MMM d, yyyy')}
-              </time>
+              {displayPost.publishedDate && (
+                <time dateTime={displayPost.publishedDate}>
+                  {format(new Date(displayPost.publishedDate), 'MMM d, yyyy')}
+                </time>
               )}
               <span aria-hidden="true">&middot;</span>
-              <span>{post.readingTime || 5} min read</span>
+              <span>{displayPost.readingTime || 5} {t('article.minRead')}</span>
             </div>
           </div>
         </div>

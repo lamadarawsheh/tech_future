@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const { signInWithEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,16 +17,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
-      setError('Please enter your email');
+      setError(t('auth.error.empty'));
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
+      setError(t('auth.error.invalid'));
       return;
     }
 
@@ -54,11 +56,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={handleClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
         {/* Close button */}
@@ -78,20 +80,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <span className="material-symbols-outlined text-4xl text-green-500">mark_email_read</span>
               </div>
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 font-display">
-                Check your email!
+                {t('auth.successHeader')}
               </h2>
               <p className="text-slate-600 dark:text-slate-300 mb-2">
-                We sent a magic link to
+                {t('auth.successBody')}
               </p>
               <p className="font-semibold text-primary mb-6">{email}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Click the link in the email to sign in. Check your spam folder if you don't see it.
+                {t('auth.successFooter')}
               </p>
               <button
                 onClick={handleClose}
                 className="mt-6 px-6 py-2 text-slate-600 dark:text-slate-300 hover:text-primary transition-colors"
               >
-                Close this window
+                {t('auth.closeButton')}
               </button>
             </div>
           ) : (
@@ -103,10 +105,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   <span className="material-symbols-outlined text-3xl text-white">person</span>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display">
-                  Sign in to continue
+                  {t('auth.header')}
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400 mt-2">
-                  Enter your email to receive a magic link
+                  {t('auth.subHeader')}
                 </p>
               </div>
 
@@ -124,13 +126,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Email address
+                    {t('auth.emailLabel')}
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     autoFocus
                     className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                   />
@@ -144,12 +146,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   {loading ? (
                     <>
                       <span className="animate-spin">⏳</span>
-                      Sending link...
+                      {t('auth.sending')}
                     </>
                   ) : (
                     <>
                       <span className="material-symbols-outlined text-[20px]">magic_button</span>
-                      Send Magic Link
+                      {t('auth.sendButton')}
                     </>
                   )}
                 </button>
@@ -158,13 +160,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               {/* Footer */}
               <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
                 <p className="text-sm text-center text-slate-500 dark:text-slate-400">
-                  By signing in, you'll be able to:
+                  {t('auth.benefitsHeader')}
                 </p>
                 <ul className="mt-4 space-y-2">
                   {[
-                    { icon: 'favorite', text: 'Like your favorite articles' },
-                    { icon: 'chat', text: 'Join the conversation with comments' },
-                    { icon: 'notifications', text: 'Get notified about new content' },
+                    { icon: 'favorite', text: t('auth.benefits.like') },
+                    { icon: 'chat', text: t('auth.benefits.comment') },
+                    { icon: 'notifications', text: t('auth.benefits.notify') },
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                       <span className="material-symbols-outlined text-primary text-[18px]">{item.icon}</span>

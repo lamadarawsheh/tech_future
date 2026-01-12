@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   getFeaturedPost,
   getRecentPosts,
@@ -15,6 +16,7 @@ import { BlogPost, getSlug } from '../types';
 import { format } from 'date-fns';
 import { useStore } from '../store';
 import { useAuth } from '../contexts/AuthContext';
+import { getTranslatedPost } from '../utils/mockTranslations';
 
 const POSTS_PER_PAGE = 6;
 
@@ -36,6 +38,11 @@ export const Home: React.FC = () => {
   const { user, subscriber } = useAuth();
   const isAuthenticated = !!user && !!subscriber;
   const { toggleAiModal } = useStore();
+  const { t, i18n } = useTranslation();
+
+  // Derived state for display
+  const displayFeaturedPost = getTranslatedPost(featuredPost, i18n.language);
+  const displayTrendingPosts = trendingPosts.map(post => getTranslatedPost(post, i18n.language) || post);
 
   useEffect(() => {
     const loadData = async () => {
@@ -102,11 +109,10 @@ export const Home: React.FC = () => {
     return (
       <div className="p-10 text-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl">
         <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">
-          Connection Established
+          {t('home.connectionEstablished')}
         </h2>
         <p className="text-slate-500">
-          No content found. Please add 'blogPost' documents to your Sanity
-          Studio.
+          {t('home.noContent')}
         </p>
       </div>
     );
@@ -115,11 +121,11 @@ export const Home: React.FC = () => {
   return (
     <>
       {/* Hero Section */}
-      {featuredPost && (
+      {displayFeaturedPost && (
         <section className="mb-16 rounded-3xl overflow-hidden relative group shadow-2xl shadow-slate-200/50 dark:shadow-none">
           <div
             className="w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-105"
-            style={{ backgroundImage: `url('${featuredPost.image}')` }}
+            style={{ backgroundImage: `url('${displayFeaturedPost.image}')` }}
           ></div>
           <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/90 via-black/60 to-black/20 backdrop-blur-sm"></div>
 
@@ -127,35 +133,35 @@ export const Home: React.FC = () => {
             <div className="max-w-4xl space-y-6 transform transition-transform duration-500 group-hover:-translate-y-2">
               <div className="flex flex-wrap items-center gap-4">
                 <span className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white bg-primary rounded-full shadow-lg shadow-primary/40">
-                  Featured Story
+                  {t('home.featuredStory')}
                 </span>
                 <div className="flex items-center gap-2 text-slate-200 text-sm font-medium bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
                   <span className="material-symbols-outlined text-[16px]">
                     calendar_today
                   </span>
-                  {new Date(featuredPost.publishedDate).toLocaleDateString()}
+                  {new Date(displayFeaturedPost.publishedDate).toLocaleDateString()}
                 </div>
                 <div className="flex items-center gap-2 text-slate-200 text-sm font-medium bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
                   <span className="material-symbols-outlined text-[16px]">
                     schedule
                   </span>
-                  {featuredPost.readingTime} min read
+                  {displayFeaturedPost.readingTime} {t('home.minRead')}
                 </div>
               </div>
               <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] tracking-tight drop-shadow-sm font-display">
-                {featuredPost.title}
+                {displayFeaturedPost.title}
               </h1>
               <p className="text-base sm:text-lg lg:text-xl text-slate-200 font-medium max-w-2xl leading-relaxed drop-shadow-sm hidden sm:block">
-                {featuredPost.excerpt}
+                {displayFeaturedPost.excerpt}
               </p>
               <div className="pt-4">
                 <Link
-                  to={`/article/${getSlug(featuredPost.slug)}`}
+                  to={`/article/${getSlug(displayFeaturedPost.slug)}`}
                   className="inline-flex items-center gap-3 pl-6 pr-4 py-3.5 bg-white text-slate-900 rounded-full font-bold text-sm hover:bg-slate-50 transition-all hover:pr-6 shadow-lg shadow-white/10 group-btn"
                 >
-                  Read Full Article
+                  {t('home.readFullArticle')}
                   <div className="size-6 rounded-full bg-slate-100 flex items-center justify-center transition-colors group-btn-hover:bg-primary group-btn-hover:text-white">
-                    <span className="material-symbols-outlined text-[16px] text-slate-900">
+                    <span className={`material-symbols-outlined text-[16px] text-slate-900 ${i18n.language === 'ar' ? 'rotate-180' : ''}`}>
                       arrow_forward
                     </span>
                   </div>
@@ -171,10 +177,10 @@ export const Home: React.FC = () => {
           <div className="flex items-end justify-between border-b border-border-light dark:border-border-dark pb-6">
             <div className="space-y-1">
               <h2 className="text-3xl font-bold text-slate-900 dark:text-white font-display">
-                Latest Thoughts
+                {t('home.latestThoughts')}
               </h2>
               <p className="text-slate-500 dark:text-slate-400 font-medium">
-                Insights on technology, design, and coding.
+                {t('home.insights')}
               </p>
             </div>
             <div className="flex gap-2 bg-slate-100 dark:bg-surface-dark p-1 rounded-lg">
@@ -217,11 +223,10 @@ export const Home: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
-                    AI Content Guide
+                    {t('home.aiContentGuide')}
                   </h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                    Need recommendations or have a question? Ask our AI
-                    assistant.
+                    {t('home.aiDescription')}
                   </p>
                 </div>
               </div>
@@ -229,7 +234,7 @@ export const Home: React.FC = () => {
                 onClick={toggleAiModal}
                 className="group flex items-center gap-2 rounded-full bg-white dark:bg-slate-700 px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 shadow-sm ring-1 ring-slate-200 dark:ring-slate-600 transition-all hover:text-primary dark:hover:text-primary hover:shadow-md active:scale-95"
               >
-                <span>Ask Assistant</span>
+                <span>{t('home.askAssistant')}</span>
                 <span className="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">
                   chat
                 </span>
@@ -259,11 +264,11 @@ export const Home: React.FC = () => {
                 {loadingMore ? (
                   <>
                     <span className="animate-spin">⏳</span>
-                    Loading...
+                    {t('home.loading')}
                   </>
                 ) : (
                   <>
-                    Load More Articles
+                    {t('home.loadMore')}
                     <span className="material-symbols-outlined group-hover:rotate-180 transition-transform duration-500">
                       refresh
                     </span>
@@ -275,7 +280,7 @@ export const Home: React.FC = () => {
 
           {!hasMorePosts && recentPosts.length > 0 && (
             <p className="text-center text-slate-500 dark:text-slate-400 mt-6">
-              You've reached the end! 🎉
+              {t('home.endOfContent')}
             </p>
           )}
         </div>
@@ -289,7 +294,7 @@ export const Home: React.FC = () => {
                 <span className="material-symbols-outlined">mail</span>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white font-display">
-                Newsletter
+                {t('home.newsletter')}
               </h3>
             </div>
             {isAuthenticated ? (
@@ -300,17 +305,16 @@ export const Home: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-sm font-medium text-green-700 dark:text-green-400 mb-2">
-                  You're subscribed!
+                  {t('home.subscribed')}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Signed in as {user?.email}
+                  {t('home.signedInAs', { email: user?.email })}
                 </p>
               </div>
             ) : (
               <>
                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
-                  Get the latest tech trends and design insights delivered to
-                  your inbox weekly. No spam, just value.
+                  {t('home.newsletterDescription')}
                 </p>
                 <button
                   onClick={() => setShowAuthModal(true)}
@@ -319,7 +323,7 @@ export const Home: React.FC = () => {
                   <span className="material-symbols-outlined text-[18px]">
                     magic_button
                   </span>
-                  Join 10k+ Readers
+                  {t('home.joinReaders')}
                 </button>
               </>
             )}
@@ -332,7 +336,7 @@ export const Home: React.FC = () => {
                 label
               </span>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">
-                Popular Tags
+                {t('home.popularTags')}
               </h3>
             </div>
             <div className="flex flex-wrap gap-2.5">
@@ -350,7 +354,7 @@ export const Home: React.FC = () => {
                   </Link>
                 ))
               ) : (
-                <p className="text-sm text-slate-400">No tags found</p>
+                <p className="text-sm text-slate-400">{t('home.noTags')}</p>
               )}
             </div>
           </div>
@@ -363,7 +367,7 @@ export const Home: React.FC = () => {
                   trending_up
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">
-                  Trending Now
+                  {t('home.trendingNow')}
                 </h3>
               </div>
             </div>
@@ -371,10 +375,10 @@ export const Home: React.FC = () => {
             {/* Time Filter Tabs */}
             <div className="flex flex-wrap gap-1 mb-6 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
               {[
-                { key: 'today', label: 'Today' },
-                { key: 'week', label: 'This Week' },
-                { key: 'month', label: 'This Month' },
-                { key: 'all', label: 'All Time' },
+                { key: 'today', label: t('home.timeFilter.today') },
+                { key: 'week', label: t('home.timeFilter.week') },
+                { key: 'month', label: t('home.timeFilter.month') },
+                { key: 'all', label: t('home.timeFilter.all') },
               ].map(({ key, label }) => (
                 <button
                   key={key}
@@ -401,8 +405,8 @@ export const Home: React.FC = () => {
                     </div>
                   </div>
                 ))
-              ) : trendingPosts.length > 0 ? (
-                trendingPosts.map((post, index) => (
+              ) : displayTrendingPosts.length > 0 ? (
+                displayTrendingPosts.map((post, index) => (
                   <Link
                     key={post._id}
                     to={`/article/${getSlug(post.slug)}`}
@@ -422,7 +426,7 @@ export const Home: React.FC = () => {
                             : ''}
                         </span>
                         <span>•</span>
-                        <span>{post.readingTime || 5} min read</span>
+                        <span>{post.readingTime || 5} {t('home.minRead')}</span>
                         <span>•</span>
                         <span className="flex items-center gap-0.5">
                           <span className="material-symbols-outlined text-[12px]">
@@ -436,7 +440,7 @@ export const Home: React.FC = () => {
                 ))
               ) : (
                 <p className="text-sm text-slate-400 text-center py-4">
-                  No trending posts for this period
+                  {t('home.noTrending')}
                 </p>
               )}
             </div>

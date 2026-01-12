@@ -1,21 +1,17 @@
-// pages/Categories.tsx
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { client } from '../lib/sanity';
+import { getCategories } from '../services/sanity';
+import { Category } from '../types';
 import { GridCardSkeleton } from '../components/Skeleton';
+import { useTranslation } from 'react-i18next';
 
-interface Category {
-  _id: string;
-  title: string;
-  slug: {
-    current: string;
-  };
-  description?: string;
-  color?: string;
-  "postCount"?: number;
+function getSlug(slug: any): string {
+  if (!slug) return '';
+  return typeof slug === 'string' ? slug : slug.current || '';
 }
 
 export const Categories: React.FC = () => {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
@@ -26,17 +22,9 @@ export const Categories: React.FC = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading(true);
       try {
-        const query = `*[_type == "category"] {
-          _id,
-          title,
-          "slug": slug.current,
-          description,
-          color,
-          "postCount": count(*[_type == "blogPost" && references(^._id)])
-        } | order(title asc)`;
-        
-        const data = await client.fetch(query);
+        const data = await getCategories();
         setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -48,26 +36,15 @@ export const Categories: React.FC = () => {
     fetchCategories();
   }, []);
 
-  // Color mapping for category cards
-  const colorMap = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-emerald-500 to-teal-600',
-    purple: 'from-purple-500 to-indigo-600',
-    orange: 'from-orange-500 to-amber-600',
-    default: 'from-slate-600 to-slate-700'
-  };
-
   const handleSuggestTopic = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!topicSuggestion.trim()) return;
-    
+
     setSubmitting(true);
-    // Simulate API call - in production, you'd send this to your backend
     await new Promise(resolve => setTimeout(resolve, 1000));
     setSubmitting(false);
     setSubmitted(true);
-    
-    // Reset after a few seconds
+
     setTimeout(() => {
       setShowSuggestModal(false);
       setSubmitted(false);
@@ -76,105 +53,86 @@ export const Categories: React.FC = () => {
     }, 2000);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="h-10 w-64 bg-slate-200 dark:bg-slate-800 rounded-full mx-auto mb-6 animate-pulse"></div>
-            <div className="h-6 w-1/2 bg-slate-200 dark:bg-slate-800 rounded mx-auto mb-8 animate-pulse"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-48 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 animate-pulse">
-                <div className="h-6 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-4"></div>
-                <div className="h-4 w-full bg-slate-200 dark:bg-slate-800 rounded mb-6"></div>
-                <div className="h-4 w-1/2 bg-slate-200 dark:bg-slate-800 rounded"></div>
-              </div>
-            ))}
-          </div>
+  return (
+    <div className="w-full">
+      <div className="flex flex-col gap-6 mb-12">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em] text-slate-900 dark:text-white font-display">
+            {t('categories.title')}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-lg font-normal leading-normal">
+            {t('categories.subtitle')}
+          </p>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 font-display">
-            Explore Categories
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Discover {categories.length} categories covering the latest in technology, development, and innovation.
-          </p>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <GridCardSkeleton key={i} />
+          ))}
         </div>
-
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {categories.map((category) => {
-            const bgGradient = colorMap[category.color as keyof typeof colorMap] || colorMap.default;
-            return (
-              <Link
-                key={category._id}
-                to={`/category/${category.slug}`}
-                className="group block h-full"
-              >
-                <div className="h-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                  <div className={`h-2 ${bgGradient} bg-gradient-to-r`}></div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                        {category.title}
-                      </h2>
-                      <span className="text-sm font-medium px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                        {category.postCount || 0}
-                      </span>
-                    </div>
-                    {category.description && (
-                      <p className="text-slate-600 dark:text-slate-400 mb-6 line-clamp-2">
-                        {category.description}
-                      </p>
-                    )}
-                    <div className="flex items-center text-sm font-medium text-primary group-hover:underline">
-                      View all posts
-                      <svg
-                        className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </div>
-                  </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((category) => (
+            <Link
+              key={category._id}
+              to={`/category/${getSlug(category.slug)}`}
+              className="group flex flex-col gap-4 p-6 rounded-2xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-slate-800 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+                  <span className="material-symbols-outlined text-2xl">
+                    {category.title === 'AI & ML' ? 'smart_toy' :
+                      category.title === 'Development' ? 'code' :
+                        category.title === 'Cloud' ? 'cloud' :
+                          category.title === 'Security' ? 'security' :
+                            category.title === 'Data' ? 'database' : 'folder'}
+                  </span>
                 </div>
-              </Link>
-            );
-          })}
-        </div>
+                <span className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:text-primary transition-colors">
+                  <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
+                </span>
+              </div>
 
-        {/* CTA Section */}
-        <div className="mt-20 text-center">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-            Can't find what you're looking for?
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto">
-            Let us know what topics you'd like to see more of. We're always looking to expand our coverage.
-          </p>
-          <button 
-            onClick={() => setShowSuggestModal(true)}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            Suggest a Topic
-          </button>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 font-display group-hover:text-primary transition-colors">
+                  {category.title}
+                </h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2">
+                  {category.description}
+                </p>
+              </div>
+
+              <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                <span>{t('categories.explore')}</span>
+              </div>
+            </Link>
+          ))}
         </div>
+      )}
+
+      {!loading && categories.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-slate-500 dark:text-slate-400">No categories found.</p>
+        </div>
+      )}
+
+      {/* CTA Section */}
+      <div className="mt-20 text-center">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+          {t('trending.cantFind')}
+        </h2>
+        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto">
+          {t('trending.suggestDesc')}
+        </p>
+        <button
+          onClick={() => setShowSuggestModal(true)}
+          className="inline-flex items-center gap-2 px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
+          <span className="material-symbols-outlined">lightbulb</span>
+          {t('trending.suggestBtn')}
+        </button>
       </div>
 
       {/* Suggest Topic Modal */}
@@ -183,7 +141,7 @@ export const Categories: React.FC = () => {
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setShowSuggestModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className="absolute top-4 right-4 rtl:right-auto rtl:left-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
             >
               <span className="material-symbols-outlined">close</span>
             </button>
@@ -194,10 +152,10 @@ export const Categories: React.FC = () => {
                   <span className="material-symbols-outlined text-green-500 text-3xl">check_circle</span>
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                  Thank you!
+                  {t('trending.thankYou')}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400">
-                  Your suggestion has been submitted. We'll review it soon!
+                  {t('trending.suggestionSubmitted')}
                 </p>
               </div>
             ) : (
@@ -207,23 +165,23 @@ export const Categories: React.FC = () => {
                     <span className="material-symbols-outlined text-primary text-2xl">lightbulb</span>
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                    Suggest a Topic
+                    {t('trending.suggestionTitle')}
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    What would you like us to write about?
+                    {t('trending.suggestionPrompt')}
                   </p>
                 </div>
 
                 <form onSubmit={handleSuggestTopic} className="space-y-4">
                   <div>
                     <label htmlFor="topic" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Topic *
+                      {t('trending.topicLabel')}
                     </label>
                     <textarea
                       id="topic"
                       value={topicSuggestion}
                       onChange={(e) => setTopicSuggestion(e.target.value)}
-                      placeholder="e.g., How to build a REST API with Node.js"
+                      placeholder={t('trending.topicPlaceholder')}
                       required
                       rows={3}
                       className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none"
@@ -231,17 +189,17 @@ export const Categories: React.FC = () => {
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Email (optional)
+                      {t('trending.emailLabel')}
                     </label>
                     <input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
+                      placeholder={t('trending.emailPlaceholder')}
                       className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary"
                     />
-                    <p className="text-xs text-slate-500 mt-1">We'll notify you when we publish it</p>
+                    <p className="text-xs text-slate-500 mt-1">{t('trending.notify')}</p>
                   </div>
                   <button
                     type="submit"
@@ -251,12 +209,12 @@ export const Categories: React.FC = () => {
                     {submitting ? (
                       <>
                         <span className="animate-spin">⏳</span>
-                        Submitting...
+                        {t('trending.submitting')}
                       </>
                     ) : (
                       <>
-                        <span className="material-symbols-outlined text-[20px]">send</span>
-                        Submit Suggestion
+                        <span className="material-symbols-outlined text-[20px] rtl:rotate-180">send</span>
+                        {t('trending.submitBtn')}
                       </>
                     )}
                   </button>
@@ -269,5 +227,3 @@ export const Categories: React.FC = () => {
     </div>
   );
 };
-
-export default Categories;

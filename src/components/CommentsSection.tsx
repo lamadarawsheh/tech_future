@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { getCommentsByPost, createComment } from '../services/sanity';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,6 +20,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
   isSubscribed = false,
   onCommentAdded,
 }) => {
+  const { t } = useTranslation();
   const { subscriber: currentSubscriber } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -37,9 +39,9 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!subscriberId || !isSubscribed) {
-      alert('Please sign in to comment!');
+      alert(t('comments.alerts.signIn'));
       return;
     }
 
@@ -54,11 +56,15 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
           ...comment,
           subscriber: currentSubscriber ? {
             _id: currentSubscriber._id,
+            _type: 'subscriber',
             name: currentSubscriber.name,
+            email: currentSubscriber.email,
             avatar: currentSubscriber.avatar,
             avatarUrl: currentSubscriber.avatarUrl,
+            isSubscribed: currentSubscriber.isSubscribed,
+            createdAt: currentSubscriber.createdAt,
             subscriptionTier: currentSubscriber.subscriptionTier,
-          } : undefined,
+          } : comment.subscriber,
         };
         // Add to local state immediately - comments show instantly (no approval needed)
         setComments(prev => [commentWithSubscriber, ...prev]); // Add to top of list
@@ -68,7 +74,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
       }
     } catch (error) {
       console.error('Error creating comment:', error);
-      alert('Failed to submit comment. Please try again.');
+      alert(t('comments.alerts.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -90,7 +96,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
     return (
       <div className="mt-12 p-6 bg-slate-50 dark:bg-slate-900/50 rounded-xl text-center">
         <span className="material-symbols-outlined text-3xl text-slate-400 mb-2">comments_disabled</span>
-        <p className="text-slate-500 dark:text-slate-400">Comments are disabled for this article.</p>
+        <p className="text-slate-500 dark:text-slate-400">{t('comments.disabled')}</p>
       </div>
     );
   }
@@ -100,7 +106,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
       <div className="flex items-center gap-2 mb-6">
         <span className="material-symbols-outlined text-primary">chat</span>
         <h3 className="text-2xl font-bold text-slate-900 dark:text-white font-display">
-          Comments ({comments.length})
+          {t('comments.title')} ({comments.length})
         </h3>
       </div>
 
@@ -109,27 +115,27 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
         <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4">
           {replyTo && (
             <div className="flex items-center gap-2 mb-3 text-sm text-slate-500">
-              <span>Replying to comment</span>
+              <span>{t('comments.replyingTo')}</span>
               <button
                 type="button"
                 onClick={() => setReplyTo(null)}
                 className="text-red-500 hover:text-red-600"
               >
-                Cancel
+                {t('comments.cancel')}
               </button>
             </div>
           )}
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder={isSubscribed ? "Share your thoughts..." : "Sign in to leave a comment"}
+            placeholder={isSubscribed ? t('comments.placeholder') : t('comments.signInPlaceholder')}
             disabled={!isSubscribed || submitting}
             className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             rows={3}
           />
           <div className="flex justify-between items-center mt-3">
             <p className="text-xs text-slate-500">
-              {isSubscribed ? 'Your comment will appear immediately.' : 'Sign in to join the conversation!'}
+              {isSubscribed ? t('comments.immediate') : t('comments.signInJoin')}
             </p>
             <button
               type="submit"
@@ -139,12 +145,12 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
               {submitting ? (
                 <>
                   <span className="animate-spin">⏳</span>
-                  Posting...
+                  {t('comments.posting')}
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined text-[18px]">send</span>
-                  Post Comment
+                  {t('comments.post')}
                 </>
               )}
             </button>
@@ -170,24 +176,23 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
       ) : comments.length === 0 ? (
         <div className="text-center py-12 bg-slate-50 dark:bg-slate-900/30 rounded-xl">
           <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">forum</span>
-          <p className="text-slate-500 dark:text-slate-400">No comments yet. Be the first to share your thoughts!</p>
+          <p className="text-slate-500 dark:text-slate-400">{t('comments.empty')}</p>
         </div>
       ) : (
         <div className="space-y-6">
           {comments.map((comment) => (
             <div
               key={comment._id}
-              className={`p-4 rounded-xl ${
-                comment.featured
-                  ? 'bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20'
-                  : 'bg-slate-50 dark:bg-slate-900/30'
-              }`}
+              className={`p-4 rounded-xl ${comment.featured
+                ? 'bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20'
+                : 'bg-slate-50 dark:bg-slate-900/30'
+                }`}
             >
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0">
                   {comment.subscriber?.avatar || comment.subscriber?.avatarUrl ? (
                     <img
-                      src={comment.subscriber.avatar || comment.subscriber.avatarUrl}
+                      src={comment.subscriber.avatarUrl || (typeof comment.subscriber.avatar === 'string' ? comment.subscriber.avatar : comment.subscriber.avatar?.asset?.url) || ''}
                       alt={comment.subscriber.name}
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -202,7 +207,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-semibold text-slate-900 dark:text-white">
-                      {comment.subscriber?.name || 'Anonymous'}
+                      {comment.subscriber?.name || t('comments.anonymous')}
                     </span>
                     {comment.subscriber?.subscriptionTier && (
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${getTierBadge(comment.subscriber.subscriptionTier)}`}>
@@ -211,7 +216,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                     )}
                     {comment.featured && (
                       <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-                        ⭐ Featured
+                        ⭐ {t('comments.featured')}
                       </span>
                     )}
                   </div>
@@ -223,14 +228,14 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({
                       {format(new Date(comment.createdAt), 'MMM d, yyyy · h:mm a')}
                     </time>
                     {comment.editedAt && (
-                      <span className="italic">(edited)</span>
+                      <span className="italic">{t('comments.edited')}</span>
                     )}
                     {isSubscribed && (
                       <button
                         onClick={() => setReplyTo(comment._id)}
                         className="text-primary hover:underline"
                       >
-                        Reply
+                        {t('comments.reply')}
                       </button>
                     )}
                   </div>

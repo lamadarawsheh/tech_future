@@ -1,0 +1,477 @@
+{
+  "home": {
+    "connectionEstablished": "Connection Established",
+    "noContent": "No content found. Please add 'blogPost' documents to your Sanity Studio.",
+    "featuredStory": "Featured Story",
+    "minRead": "min read",
+    "readFullArticle": "Read Full Article",
+    "latestThoughts": "Latest Thoughts",
+    "insights": "Insights on technology, design, and coding.",
+    "aiContentGuide": "AI Content Guide",
+    "aiDescription": "Need recommendations or have a question? Ask our AI assistant.",
+    "askAssistant": "Ask Assistant",
+    "loadMore": "Load More Articles",
+    "loading": "Loading...",
+    "endOfContent": "You've reached the end! 🎉",
+    "newsletter": "Newsletter",
+    "subscribed": "You're subscribed!",
+    "signedInAs": "Signed in as {{email}}",
+    "newsletterDescription": "Get the latest tech trends and design insights delivered to your inbox weekly. No spam, just value.",
+    "joinReaders": "Join 10k+ Readers",
+    "popularTags": "Popular Tags",
+    "noTags": "No tags found",
+    "trendingNow": "Trending Now",
+    "timeFilter": {
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "all": "All Time"
+    },
+    "noTrending": "No trending posts for this period"
+  },
+  "trending": {
+    "title": "Trending Now",
+    "subtitle": "Top stories moving the tech world today.",
+    "readArticle": "Read Article",
+    "readMore": "Read more",
+    "subscribeTitle": "Never miss a trending story",
+    "subscribeDesc": "Get the top 5 stories of the week delivered straight to your inbox every Friday.",
+    "subscribed": "You're subscribed!",
+    "subscribeBtn": "Subscribe Now",
+    "cantFind": "Can't find what you're looking for?",
+    "suggestDesc": "Let us know what topics you'd like to see more of. We're always looking to expand our coverage.",
+    "suggestBtn": "Suggest a Topic",
+    "noPosts": "No trending posts for this time period.",
+    "thankYou": "Thank you!",
+    "suggestionSubmitted": "Your suggestion has been submitted. We'll review it soon!",
+    "suggestionTitle": "Suggest a Topic",
+    "suggestionPrompt": "What would you like us to write about?",
+    "topicLabel": "Topic *",
+    "topicPlaceholder": "e.g., How to build a REST API with Node.js",
+    "emailLabel": "Email (optional)",
+    "emailPlaceholder": "your@email.com",
+    "notify": "We'll notify you when we publish it",
+    "submitting": "Submitting...",
+    "submitBtn": "Submit Suggestion"
+  },
+  "categoriesPage": {
+    "title": "Explore Categories",
+    "subtitle": "Discover {{count}} categories covering the latest in technology, development, and innovation.",
+    "viewAll": "View all posts",
+    "cantFind": "Can't find what you're looking for?",
+    "suggestDesc": "Let us know what topics you'd like to see more of. We're always looking to expand our coverage.",
+    "suggestBtn": "Suggest a Topic"
+  },
+  "nav": {
+    "home": "Home",
+    "trending": "Trending",
+    "categories": "Categories",
+    "practice": "Practice",
+    "newsletter": "Newsletter",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "myProfile": "My Profile",
+    "savedArticles": "Saved Articles",
+    "mySubmissions": "My Submissions",
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "searchPlaceholder": "Search articles, authors...",
+    "practiceArena": "Arena",
+    "learningPaths": "Learning Paths",
+    "leaderboard": "Leaderboard",
+    "menu": "Menu",
+    "resultsFor": "Results for",
+    "startTyping": "Start typing to search...",
+    "searching": "Searching...",
+    "noResults": "No results found for",
+    "tryDifferent": "Try different keywords",
+    "articles": "Articles",
+    "authors": "Authors",
+    "viewAll": "View all",
+    "solveChallenges": "Solve challenges",
+    "structuredCourses": "Structured courses",
+    "rankings": "Rankings & XP",
+    "trackProgress": "Track progress",
+    "viewSolutions": "View your solutions"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "contactUs": "Contact Us",
+    "quickLinks": "Quick Links",
+    "followUs": "Follow Us",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "tagline": "Exploring the boundaries of code, design, and artificial intelligence."
+  },
+  "auth": {
+    "header": "Sign in to continue",
+    "subHeader": "Enter your email to receive a magic link",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "sendButton": "Send Magic Link",
+    "sending": "Sending link...",
+    "successHeader": "Check your email!",
+    "successBody": "We sent a magic link to",
+    "successFooter": "Click the link in the email to sign in. Check your spam folder if you don't see it.",
+    "closeButton": "Close this window",
+    "benefitsHeader": "By signing in, you'll be able to:",
+    "benefits": {
+      "like": "Like your favorite articles",
+      "comment": "Join the conversation with comments",
+      "notify": "Get notified about new content"
+    },
+    "error": {
+      "empty": "Please enter your email",
+      "invalid": "Please enter a valid email address"
+    }
+  },
+  "chat": {
+    "welcome": "Hi! 👋 I'm the Bot & Beam AI assistant. I can help you find articles, answer tech questions, or explore our content. What would you like to know?",
+    "header": "Bot & Beam AI",
+    "status": "Online • Ready to help",
+    "placeholder": "Ask me anything...",
+    "disclaimer": "AI may make mistakes. Verify important information.",
+    "thinking": "Thinking...",
+    "error": "Sorry, I'm having trouble right now. You can still use the search bar above to find articles!",
+    "tryAsking": "Try asking:",
+    "clickToRead": "Click to read →",
+    "aiAssistant": "AI Assistant"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "Oops! The page you're looking for doesn't exist or has been moved.",
+    "goBack": "Go Back",
+    "goHome": "Go Home"
+  },
+  "about": {
+    "hero": {
+      "label": "About Future/Sync",
+      "title": "Decoding the Future,",
+      "subtitle": "One Post at a Time.",
+      "description": "We explore the intersection of technology, design, and culture. We aren't just reporting on the future; we're trying to understand it alongside you.",
+      "readStory": "Read Our Story",
+      "meetTeam": "Meet the Team",
+      "since": "Since 2018",
+      "location": "Based in San Francisco, CA"
+    },
+    "mission": {
+      "label": "Our Mission",
+      "title": "Simplifying Complexity",
+      "description": "The world of technology moves fast. Too fast. Our goal is to slow it down, deconstruct the high-level concepts, and make them accessible without losing the nuance that makes them important. We write for the curious mind."
+    },
+    "stats": {
+      "readers": "Monthly Readers",
+      "words": "Words Written",
+      "members": "Team Members",
+      "rating": "Avg Rating"
+    },
+    "origin": {
+      "title": "The Origin Story",
+      "p1": "It started with a simple notebook and a curiosity about how things work. Back in 2018, I felt overwhelmed by the sheer volume of tech news. It felt like noise. I wanted signal.",
+      "p2": "What began as a personal newsletter to 50 friends quickly spiraled. People were hungry for analysis, not just headlines. They wanted to know why things mattered.",
+      "p3": "Today, Future/Sync is more than just me. It's a collective of writers, designers, and thinkers who believe that the future is worth understanding properly. We aren't optimists or pessimists; we are realists who love cool tech."
+    },
+    "milestones": {
+      "title": "Key Milestones",
+      "2018": {
+        "title": "Blog Founded",
+        "desc": "Started as a weekend project in a small apartment."
+      },
+      "2019": {
+        "title": "First 10,000 Readers",
+        "desc": "Hit our first major milestone purely through organic growth."
+      },
+      "2021": {
+        "title": "Podcast Launch",
+        "desc": "Expanded into audio formats to reach commuters."
+      },
+      "today": {
+        "title": "Scaling Up",
+        "desc": "Building a global team of expert contributors."
+      }
+    },
+    "team": {
+      "title": "Meet the Minds",
+      "description": "The people behind the pixels. We are a distributed team of nerds, designers, and writers.",
+      "aiButton": "Ask our AI about the team or mission",
+      "roles": {
+        "founder": "Founder & Editor",
+        "leadWriter": "Lead Writer",
+        "analyst": "Tech Analyst",
+        "director": "Creative Director"
+      }
+    },
+    "cta": {
+      "title": "Don't Miss the Next Big Shift",
+      "description": "Join 50,000+ subscribers getting the best tech insights delivered to their inbox weekly. No spam, just signal.",
+      "placeholder": "Enter your email address",
+      "button": "Subscribe",
+      "unsubscribe": "Unsubscribe at any time."
+    }
+  },
+  "article": {
+    "minRead": "min read",
+    "updated": "Updated",
+    "views": "views",
+    "likes": "likes",
+    "comments": "comments",
+    "noContent": "No content available for this article.",
+    "enjoyed": "Enjoyed this article?",
+    "signInToLike": "Sign in to like & comment",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "save": "Save",
+    "share": "Share",
+    "joinConversation": "Join the conversation",
+    "signInDesc": "Sign in with your email to like articles and join the discussion!",
+    "signInMagic": "Sign in with Magic Link",
+    "signedInAs": "Signed in as",
+    "canLike": "You can like and comment on articles!",
+    "notFound": "Article not found",
+    "backHome": "Back to home",
+    "home": "Home",
+    "error": "Failed to load article. Please try again later.",
+    "noSlug": "No article slug provided"
+  },
+  "comments": {
+    "title": "Comments",
+    "disabled": "Comments are disabled for this article.",
+    "replyingTo": "Replying to comment",
+    "cancel": "Cancel",
+    "placeholder": "Share your thoughts...",
+    "signInPlaceholder": "Sign in to leave a comment",
+    "immediate": "Your comment will appear immediately.",
+    "signInJoin": "Sign in to join the conversation!",
+    "posting": "Posting...",
+    "post": "Post Comment",
+    "empty": "No comments yet. Be the first to share your thoughts!",
+    "anonymous": "Anonymous",
+    "featured": "Featured",
+    "reply": "Reply",
+    "edited": "(edited)",
+    "alerts": {
+      "signIn": "Please sign in to comment!",
+      "failed": "Failed to submit comment. Please try again."
+    }
+  },
+  "like": {
+    "signIn": "Please sign in to like posts!"
+  },
+  "portableText": {
+    "copied": "Copied!",
+    "copy": "Copy",
+    "lines": "lines",
+    "noContent": "No content available.",
+    "articleImage": "Article image"
+  },
+  "subscribe": {
+    "title": "Subscribe to Newsletter",
+    "desc": "Get the latest AI and tech insights delivered to your inbox. Plus, unlock the ability to like and comment on articles!",
+    "name": "Name (optional)",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "button": "Subscribe Free",
+    "subscribing": "Subscribing...",
+    "disclaimer": "No spam, unsubscribe anytime. By subscribing you agree to our privacy policy.",
+    "benefits": "Subscriber benefits:",
+    "list": {
+      "newsletter": "Weekly AI & tech newsletter",
+      "like": "Like and comment on articles",
+      "access": "Early access to new content",
+      "community": "Join the community discussions"
+    },
+    "success": {
+      "title": "You're subscribed!",
+      "desc": "Thank you for joining our community."
+    },
+    "errors": {
+      "emailRequired": "Please enter your email",
+      "alreadySubscribed": "This email is already subscribed!",
+      "failed": "Failed to subscribe. Please try again.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "contact": {
+    "label": "Get in touch",
+    "title": "Let's build something extraordinary together.",
+    "description": "Have a question about a recent article? Want to partner with us? Or just want to say hi? We'd love to hear from you.",
+    "chat": {
+      "title": "Chat to us",
+      "desc": "Our friendly team is here to help."
+    },
+    "visit": {
+      "title": "Visit us",
+      "desc": "Come say hello at our office HQ."
+    },
+    "call": {
+      "title": "Call us",
+      "desc": "Mon-Fri from 8am to 5pm."
+    },
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "placeholder": {
+        "firstName": "Jane",
+        "lastName": "Doe",
+        "email": "jane@example.com",
+        "message": "Leave us a message..."
+      },
+      "submit": "Send Message",
+      "submitted": "Message Sent!",
+      "success": "We'll get back to you soon.",
+      "options": {
+        "general": "General Inquiry",
+        "editorial": "Editorial Feedback",
+        "partnership": "Partnership Proposal",
+        "technical": "Technical Issue"
+      }
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "updated": "Last updated: October 25, 2023",
+    "intro": {
+      "title": "1. Introduction",
+      "text": "Welcome to TechBlog Future. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you."
+    },
+    "collect": {
+      "title": "2. The Data We Collect",
+      "text": "We may collect, use, store and transfer different kinds of personal data about you which we have grouped together follows:",
+      "identity": "Identity Data",
+      "identityDesc": "includes first name, last name, username or similar identifier.",
+      "contact": "Contact Data",
+      "contactDesc": "includes email address and telephone number.",
+      "technical": "Technical Data",
+      "technicalDesc": "includes internet protocol (IP) address, browser type and version, time zone setting and location.",
+      "usage": "Usage Data",
+      "usageDesc": "includes information about how you use our website, products and services."
+    },
+    "use": {
+      "title": "3. How We Use Your Data",
+      "text": "We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:",
+      "list1": "Where we need to perform the contract we are about to enter into or have entered into with you.",
+      "list2": "Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests.",
+      "list3": "Where we need to comply with a legal or regulatory obligation."
+    },
+    "contact": {
+      "title": "4. Contact Us",
+      "text": "If you have any questions about this privacy policy or our privacy practices, please contact us at:"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "updated": "Last updated: October 25, 2023",
+    "acceptance": {
+      "title": "1. Acceptance of Terms",
+      "text": "By accessing and using TechBlog Future, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services."
+    },
+    "ip": {
+      "title": "2. Intellectual Property",
+      "text": "The Site and its original content, features and functionality are and will remain the exclusive property of TechBlog Future and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries."
+    },
+    "contributions": {
+      "title": "3. User Contributions",
+      "text": "Users may post comments and other content as long as the content is not illegal, obscene, threatening, defamatory, invasive of privacy, infringing of intellectual property rights, or otherwise injurious to third parties or objectionable."
+    },
+    "termination": {
+      "title": "4. Termination",
+      "text": "We may terminate or suspend access to our Service immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms."
+    },
+    "law": {
+      "title": "5. Governing Law",
+      "text": "These Terms shall be governed and construed in accordance with the laws of United States, without regard to its conflict of law provisions."
+    }
+  },
+  "practice": {
+    "title": "CodeMaster",
+    "subtitle": "Arena",
+    "searchPlaceholder": "Search challenges, tags, topics...",
+    "nav": {
+      "arena": "Arena",
+      "quests": "Quests",
+      "leaderboard": "Leaderboard",
+      "discuss": "Discuss"
+    },
+    "level": "Level",
+    "dailyBoss": "Daily Boss Battle",
+    "timeLeft": "left",
+    "solved": "Solved",
+    "startChallenge": "Start Challenge",
+    "mobileSearchPlaceholder": "Search challenges...",
+    "found": "Found",
+    "challenges": "challenges",
+    "for": "for",
+    "clearSearch": "Clear search",
+    "randomQuest": "Random Quest - Test your luck & skills",
+    "loadMore": "Load More Quests",
+    "weeklyStreak": "Weekly Streak",
+    "streakMessage": "Keep it up! 2 days to a 7-day bonus.",
+    "yourProgress": "Your Progress",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "weakAreas": "Weak Areas",
+    "noChallenges": "No challenges found",
+    "weakAreasTags": {
+      "dynamicProgramming": "Dynamic Programming",
+      "graphTheory": "Graph Theory",
+      "bitManipulation": "Bit Manipulation"
+    },
+    "weekDays": {
+      "mon": "M",
+      "tue": "T",
+      "wed": "W",
+      "thu": "T",
+      "fri": "F",
+      "sat": "S",
+      "sun": "S"
+    },
+    "defaultDailyDesc": "Master the art of pointer manipulation. A classic challenge that tests your understanding of data structures.",
+    "categories": {
+      "all": "All",
+      "arrays": "Arrays",
+      "strings": "Strings",
+      "trees": "Trees",
+      "graphs": "Graphs",
+      "linkedlists": "Linked Lists",
+      "sorting": "Sorting",
+      "searching": "Searching",
+      "stacks": "Stacks",
+      "queues": "Queues",
+      "hashtables": "Hash Tables",
+      "recursion": "Recursion"
+    }
+  },
+  "newsletter": {
+    "heroTitle": "The Future of Tech, Delivered to Your Inbox.",
+    "heroDesc": "Join 15,000+ developers receiving our weekly deep dives into code, design, and architecture. Stay ahead of the curve.",
+    "subscribedTitle": "You're subscribed!",
+    "signedInAs": "Signed in as {{email}}",
+    "inputPlaceholder": "Click to subscribe with email",
+    "subscribeBtn": "Subscribe Now",
+    "trustedBy": "Trusted by engineers at Google, Meta, and Stripe. No spam, ever.",
+    "latestIssue": "Latest Issue",
+    "latestIssueTitle": "React Server Components: The Complete Guide",
+    "latestIssueDesc": "Deep dive into how RSCs change the paradigm of data fetching and component rendering in modern web applications...",
+    "missedTitle": "What you missed last week",
+    "missedDesc": "Catch up on our most popular newsletters.",
+    "viewArchive": "View Archive",
+    "mock": {
+      "design": "Design",
+      "engineering": "Engineering",
+      "security": "Security",
+      "time": "min read",
+      "desc": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    }
+  }
+}

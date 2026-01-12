@@ -1,6 +1,6 @@
-// In pages/Article.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getPostBySlug, incrementViewCount, checkUserSavedPost, toggleSavedPost } from '../services/sanity';
 import { ArticleDetailSkeleton } from '../components/Skeleton';
 import { PortableText } from '../components/PortableText';
@@ -11,7 +11,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { BlogPost, getSlug } from '../types';
 import { format } from 'date-fns';
 
+import { getTranslatedPost } from '../utils/mockTranslations';
+
 export const Article: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const { user, subscriber, loading: authLoading } = useAuth();
   const [post, setPost] = useState<BlogPost | null>(null);
@@ -22,10 +25,13 @@ export const Article: React.FC = () => {
   const [savingPost, setSavingPost] = useState(false);
   const viewedPostId = useRef<string | null>(null);
 
+  // Derive the post to display based on current language
+  const displayPost = getTranslatedPost(post, i18n.language);
+
   useEffect(() => {
     const fetchPost = async () => {
       if (!slug) {
-        setError('No article slug provided');
+        setError(t('article.noSlug'));
         setLoading(false);
         return;
       }
@@ -36,9 +42,9 @@ export const Article: React.FC = () => {
         console.log('Fetching article with slug:', slug);
         const data = await getPostBySlug(slug);
         console.log('Received article data:', data);
-        
+
         if (!data) {
-          setError('Article not found');
+          setError(t('article.notFound'));
         } else {
           setPost(data);
           // Increment view count only once per post
@@ -51,7 +57,7 @@ export const Article: React.FC = () => {
         }
       } catch (err) {
         console.error('Error fetching article:', err);
-        setError('Failed to load article. Please try again later.');
+        setError(t('article.error'));
       } finally {
         setLoading(false);
       }
@@ -93,143 +99,143 @@ export const Article: React.FC = () => {
     return <ArticleDetailSkeleton />;
   }
 
-  if (error || !post) {
+  if (error || !displayPost) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-            {error || 'Article not found'}
+            {error || t('article.notFound')}
           </h1>
           <Link
             to="/"
             className="inline-flex items-center text-primary hover:text-primary-dark transition-colors"
           >
-            ← Back to home
+            ← {t('article.backHome')}
           </Link>
         </div>
       </div>
     );
   }
 
-  const content = post.content || [];
-  const imageUrl = typeof post.image === 'string' ? post.image : '';
-  const authorImage = typeof post.author?.image === 'string' ? post.author.image : '';
+  const content = displayPost.content || [];
+  const imageUrl = typeof displayPost.image === 'string' ? displayPost.image : '';
+  const authorImage = typeof displayPost.author?.image === 'string' ? displayPost.author.image : '';
   const isAuthenticated = !!user && !!subscriber;
 
   return (
     <>
-    <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Breadcrumb */}
-      <nav className="mb-8">
-        <ol className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-          <li>
-            <Link to="/" className="hover:text-primary transition-colors">
-              Home
-            </Link>
-          </li>
-          <li className="mx-2">/</li>
-            <li className="text-primary font-medium truncate max-w-[200px]">{post.title}</li>
-        </ol>
-      </nav>
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Breadcrumb */}
+        <nav className="mb-8">
+          <ol className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+            <li>
+              <Link to="/" className="hover:text-primary transition-colors">
+                {t('article.home')}
+              </Link>
+            </li>
+            <li className="mx-2">/</li>
+            <li className="text-primary font-medium truncate max-w-[200px]">{displayPost.title}</li>
+          </ol>
+        </nav>
 
-      {/* Header */}
-      <header className="mb-12">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {post.categories?.map((category) => (
-            <Link
-              key={category._id}
+        {/* Header */}
+        <header className="mb-12">
+          <div className="flex flex-wrap gap-2 mb-4">
+            {displayPost.categories?.map((category) => (
+              <Link
+                key={category._id}
                 to={`/category/${getSlug(category.slug)}`}
-              className="px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-            >
-              {category.title}
-            </Link>
-          ))}
-        </div>
-        
+                className="px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              >
+                {category.title}
+              </Link>
+            ))}
+          </div>
+
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight font-display">
-          {post.title}
-        </h1>
-        
+            {displayPost.title}
+          </h1>
+
           {/* Meta info */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-base">schedule</span>
-            {post.readingTime && <span>{post.readingTime} min read</span>}
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">schedule</span>
+              {displayPost.readingTime && <span>{displayPost.readingTime} {t('article.minRead')}</span>}
+            </div>
+            <span>•</span>
+            <time dateTime={displayPost.publishedDate}>
+              {format(new Date(displayPost.publishedDate), 'MMMM d, yyyy')}
+            </time>
+            {displayPost.updatedDate && (
+              <>
+                <span>•</span>
+                <span className="text-xs">
+                  {t('article.updated')} {format(new Date(displayPost.updatedDate), 'MMM d, yyyy')}
+                </span>
+              </>
+            )}
           </div>
-          <span>•</span>
-          <time dateTime={post.publishedDate}>
-            {format(new Date(post.publishedDate), 'MMMM d, yyyy')}
-          </time>
-          {post.updatedDate && (
-            <>
-              <span>•</span>
-              <span className="text-xs">
-                Updated {format(new Date(post.updatedDate), 'MMM d, yyyy')}
-              </span>
-            </>
-          )}
-        </div>
 
           {/* Engagement Stats */}
           <div className="flex items-center gap-6 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
               <span className="material-symbols-outlined text-[18px]">visibility</span>
-              <span>{post.viewCount || 0} views</span>
+              <span>{displayPost.viewCount || 0} {t('article.views')}</span>
             </div>
             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
               <span className="material-symbols-outlined text-[18px]">favorite</span>
-              <span>{post.likeCount || 0} likes</span>
+              <span>{displayPost.likeCount || 0} {t('article.likes')}</span>
             </div>
             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
               <span className="material-symbols-outlined text-[18px]">chat_bubble</span>
-              <span>{post.commentCount || 0} comments</span>
+              <span>{displayPost.commentCount || 0} {t('article.comments')}</span>
             </div>
-        </div>
-      </header>
+          </div>
+        </header>
 
-      {/* Featured Image */}
+        {/* Featured Image */}
         {imageUrl && (
-        <div className="mb-12 rounded-xl overflow-hidden">
-          <img
+          <div className="mb-12 rounded-xl overflow-hidden">
+            <img
               src={imageUrl}
-            alt={post.title}
-            className="w-full h-auto object-cover"
-          />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="prose dark:prose-invert max-w-none mb-12">
-        {content.length > 0 ? (
-          <PortableText content={content} />
-        ) : (
-          <p className="text-slate-500 dark:text-slate-400">No content available for this article.</p>
+              alt={displayPost.title}
+              className="w-full h-auto object-cover"
+            />
+          </div>
         )}
-      </div>
 
-      {/* Tags */}
-      {post.tags && post.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-12">
-          {post.tags.map((tag) => (
+        {/* Content */}
+        <div className="prose dark:prose-invert max-w-none mb-12">
+          {content.length > 0 ? (
+            <PortableText content={content} />
+          ) : (
+            <p className="text-slate-500 dark:text-slate-400">{t('article.noContent')}</p>
+          )}
+        </div>
+
+        {/* Tags */}
+        {displayPost.tags && displayPost.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-12">
+            {displayPost.tags.map((tag) => (
               <Link
-              key={tag}
+                key={tag}
                 to={`/search?tag=${tag}`}
                 className="px-3 py-1 text-sm rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-colors"
-            >
+              >
                 #{tag}
               </Link>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
         {/* Like & Share Actions */}
         <div className="flex flex-wrap items-center gap-4 mb-12 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl">
           <span className="text-slate-600 dark:text-slate-400 font-medium">
-            Enjoyed this article?
+            {t('article.enjoyed')}
           </span>
           <LikeButton
-            postId={post._id}
-            initialLikeCount={post.likeCount || 0}
+            postId={displayPost._id}
+            initialLikeCount={displayPost.likeCount || 0}
             subscriberId={subscriber?._id}
             isSubscribed={isAuthenticated}
             onLikeChange={(newCount) => {
@@ -241,60 +247,59 @@ export const Article: React.FC = () => {
               onClick={() => setShowAuthModal(true)}
               className="text-primary hover:underline text-sm"
             >
-              Sign in to like & comment
+              {t('article.signInToLike')}
             </button>
           )}
           <div className="flex-1" />
-          <button 
+          <button
             onClick={handleSavePost}
             disabled={savingPost}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-              isSaved 
-                ? 'bg-primary/10 text-primary' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${isSaved
+              ? 'bg-primary/10 text-primary'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
           >
             <span className="material-symbols-outlined text-[18px]">
               {isSaved ? 'bookmark' : 'bookmark_border'}
             </span>
-            {savingPost ? 'Saving...' : isSaved ? 'Saved' : 'Save'}
+            {savingPost ? t('article.saving') : isSaved ? t('article.saved') : t('article.save')}
           </button>
           <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
             <span className="material-symbols-outlined text-[18px]">share</span>
-            Share
+            {t('article.share')}
           </button>
         </div>
 
-      {/* Author Bio */}
-      {post.author && (
-        <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-6 mb-12">
-          <div className="flex flex-col sm:flex-row items-start gap-6">
+        {/* Author Bio */}
+        {displayPost.author && (
+          <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-6 mb-12">
+            <div className="flex flex-col sm:flex-row items-start gap-6">
               {authorImage && (
-              <img
+                <img
                   src={authorImage}
-                alt={post.author.name}
-                className="w-20 h-20 rounded-full object-cover"
-              />
-            )}
+                  alt={displayPost.author.name}
+                  className="w-20 h-20 rounded-full object-cover"
+                />
+              )}
               <div className="flex-1">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
-                {post.author.name}
-              </h3>
-              {post.author.bio && (
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+                  {displayPost.author.name}
+                </h3>
+                {displayPost.author.bio && (
                   <div className="text-slate-600 dark:text-slate-400 mb-4">
-                    {Array.isArray(post.author.bio) ? (
-                      <PortableText content={post.author.bio} />
+                    {Array.isArray(displayPost.author.bio) ? (
+                      <PortableText content={displayPost.author.bio} />
                     ) : (
-                      <p>{post.author.bio}</p>
+                      <p>{displayPost.author.bio}</p>
                     )}
                   </div>
                 )}
                 {/* Social Links */}
-                {post.author.social && (
+                {displayPost.author.social && (
                   <div className="flex gap-3">
-                    {post.author.social.twitter && (
+                    {displayPost.author.social.twitter && (
                       <a
-                        href={`https://twitter.com/${post.author.social.twitter}`}
+                        href={`https://twitter.com/${displayPost.author.social.twitter}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
@@ -304,9 +309,9 @@ export const Article: React.FC = () => {
                         </svg>
                       </a>
                     )}
-                    {post.author.social.github && (
+                    {displayPost.author.social.github && (
                       <a
-                        href={`https://github.com/${post.author.social.github}`}
+                        href={`https://github.com/${displayPost.author.social.github}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
@@ -316,9 +321,9 @@ export const Article: React.FC = () => {
                         </svg>
                       </a>
                     )}
-                    {post.author.social.linkedin && (
+                    {displayPost.author.social.linkedin && (
                       <a
-                        href={`https://linkedin.com/in/${post.author.social.linkedin}`}
+                        href={`https://linkedin.com/in/${displayPost.author.social.linkedin}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-primary transition-colors"
@@ -329,11 +334,11 @@ export const Article: React.FC = () => {
                       </a>
                     )}
                   </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* Sign in CTA (if not authenticated) */}
         {!isAuthenticated && (
@@ -343,18 +348,18 @@ export const Article: React.FC = () => {
                 <span className="material-symbols-outlined text-primary">login</span>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white font-display">
-                Join the conversation
+                {t('article.joinConversation')}
               </h3>
             </div>
             <p className="text-slate-600 dark:text-slate-300 mb-6">
-              Sign in with your email to like articles and join the discussion!
+              {t('article.signInDesc')}
             </p>
             <button
               onClick={() => setShowAuthModal(true)}
               className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/30 flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-[20px]">magic_button</span>
-              Sign in with Magic Link
+              {t('article.signInMagic')}
             </button>
           </div>
         )}
@@ -366,10 +371,10 @@ export const Article: React.FC = () => {
               <span className="material-symbols-outlined text-green-500">check_circle</span>
               <div>
                 <p className="font-medium text-green-800 dark:text-green-300">
-                  Signed in as {user?.email}
+                  {t('article.signedInAs')} {user?.email}
                 </p>
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  You can like and comment on articles!
+                  {t('article.canLike')}
                 </p>
               </div>
             </div>
@@ -378,15 +383,15 @@ export const Article: React.FC = () => {
 
         {/* Comments Section */}
         <CommentsSection
-          postId={post._id}
-          allowComments={post.allowComments !== false}
+          postId={displayPost._id}
+          allowComments={displayPost.allowComments !== false}
           subscriberId={subscriber?._id}
           isSubscribed={isAuthenticated}
           onCommentAdded={(newCount) => {
             setPost(prev => prev ? { ...prev, commentCount: newCount } : prev);
           }}
         />
-    </article>
+      </article>
 
       {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />

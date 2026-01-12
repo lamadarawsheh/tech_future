@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createSubscriber, getSubscriberByEmail } from '../services/sanity';
 import { Subscriber } from '../types';
 
@@ -11,6 +12,7 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
   onSubscribed,
   variant = 'default',
 }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,9 +21,9 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
-      setError('Please enter your email');
+      setError(t('subscribe.errors.emailRequired'));
       return;
     }
 
@@ -31,10 +33,10 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
     try {
       // Check if already subscribed
       const existing = await getSubscriberByEmail(email);
-      
+
       if (existing) {
         if (existing.isSubscribed) {
-          setError('This email is already subscribed!');
+          setError(t('subscribe.errors.alreadySubscribed'));
         } else {
           onSubscribed?.(existing);
           setSuccess(true);
@@ -46,12 +48,12 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
           onSubscribed?.(subscriber);
           setSuccess(true);
         } else {
-          setError('Failed to subscribe. Please try again.');
+          setError(t('subscribe.errors.failed'));
         }
       }
     } catch (err) {
       console.error('Subscription error:', err);
-      setError('Something went wrong. Please try again.');
+      setError(t('subscribe.errors.generic'));
     } finally {
       setLoading(false);
     }
@@ -63,9 +65,9 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
           <div>
-            <h4 className="font-bold text-green-800 dark:text-green-300">You're subscribed!</h4>
+            <h4 className="font-bold text-green-800 dark:text-green-300">{t('subscribe.success.title')}</h4>
             <p className="text-sm text-green-600 dark:text-green-400">
-              Thank you for joining our community.
+              {t('subscribe.success.desc')}
             </p>
           </div>
         </div>
@@ -80,7 +82,7 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
+          placeholder={t('subscribe.emailPlaceholder')}
           className="flex-1 px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary"
         />
         <button
@@ -88,7 +90,7 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
           disabled={loading}
           className="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
         >
-          {loading ? '...' : 'Subscribe'}
+          {loading ? '...' : t('subscribe.button')}
         </button>
       </form>
     );
@@ -101,12 +103,12 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
           <span className="material-symbols-outlined text-primary">mail</span>
         </div>
         <h3 className="text-xl font-bold text-slate-900 dark:text-white font-display">
-          Subscribe to Newsletter
+          {t('subscribe.title')}
         </h3>
       </div>
-      
+
       <p className="text-slate-600 dark:text-slate-300 mb-6">
-        Get the latest AI and tech insights delivered to your inbox. Plus, unlock the ability to like and comment on articles!
+        {t('subscribe.desc')}
       </p>
 
       {error && (
@@ -118,26 +120,26 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Name (optional)
+            {t('subscribe.name')}
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
+            placeholder={t('subscribe.namePlaceholder')}
             className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary"
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Email <span className="text-red-500">*</span>
+            {t('subscribe.email')} <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t('subscribe.emailPlaceholder')}
             required
             className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 focus:border-primary"
           />
@@ -151,32 +153,32 @@ export const SubscribeForm: React.FC<SubscribeFormProps> = ({
           {loading ? (
             <>
               <span className="animate-spin">⏳</span>
-              Subscribing...
+              {t('subscribe.subscribing')}
             </>
           ) : (
             <>
               <span className="material-symbols-outlined text-[20px]">rocket_launch</span>
-              Subscribe Free
+              {t('subscribe.button')}
             </>
           )}
         </button>
 
         <p className="text-xs text-center text-slate-500 dark:text-slate-400">
-          No spam, unsubscribe anytime. By subscribing you agree to our privacy policy.
+          {t('subscribe.disclaimer')}
         </p>
       </form>
 
       {/* Benefits */}
       <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
         <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-          Subscriber benefits:
+          {t('subscribe.benefits')}
         </p>
         <ul className="space-y-2">
           {[
-            'Weekly AI & tech newsletter',
-            'Like and comment on articles',
-            'Early access to new content',
-            'Join the community discussions'
+            t('subscribe.list.newsletter'),
+            t('subscribe.list.like'),
+            t('subscribe.list.access'),
+            t('subscribe.list.community')
           ].map((benefit, i) => (
             <li key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
               <span className="material-symbols-outlined text-green-500 text-[16px]">check_circle</span>

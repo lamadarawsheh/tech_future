@@ -16,6 +16,7 @@ export const writeClient = createClient({
   useCdn: false, // Must be false for mutations
   apiVersion: import.meta.env.VITE_SANITY_API_VERSION || '2024-01-01',
   token: import.meta.env.VITE_SANITY_TOKEN, // Requires Editor/Admin token
+  ignoreBrowserTokenWarning: true,
 });
 
 const builder = imageUrlBuilder(client);
