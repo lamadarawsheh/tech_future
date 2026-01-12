@@ -35,7 +35,7 @@ export const getAllPosts = async (): Promise<BlogPost[]> => {
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
     const result = await client.fetch(query);
     return result || [];
@@ -63,7 +63,7 @@ export const getFeaturedPost = async (): Promise<BlogPost | null> => {
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
     const result = await client.fetch(query);
     return result || null;
@@ -93,7 +93,7 @@ export const getRecentPosts = async (limit: number = 10, offset: number = 0): Pr
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { start, end });
     return result || [];
@@ -111,9 +111,9 @@ export const getTotalPostsCount = async (): Promise<number> => {
   } catch (e) {
     console.error('Error fetching posts count:', e);
     return 0;
-    }
+  }
 };
-  
+
 // Fetch single blog post by slug
 export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
   if (!slug) {
@@ -143,7 +143,7 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
     "author": author-> { _id, name, slug, "image": image.asset->url, bio, social },
     "categories": categories[]-> { _id, title, slug, color, description }
   }`;
-  
+
   try {
     console.log('Fetching post with slug:', slug);
     const result = await client.fetch(query, { slug });
@@ -174,7 +174,7 @@ export const getPostsByCategory = async (categorySlug: string, limit: number = 1
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { categorySlug, start, end });
     return result || [];
@@ -214,7 +214,7 @@ export const getTrendingPosts = async (limit: number = 6, offset: number = 0): P
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { start, end });
     return result || [];
@@ -234,7 +234,7 @@ export const getTrendingPostsByTime = async (
   // Calculate date threshold based on filter
   const now = new Date();
   let dateThreshold: string | null = null;
-  
+
   switch (timeFilter) {
     case 'today':
       dateThreshold = new Date(now.setHours(0, 0, 0, 0)).toISOString();
@@ -249,12 +249,12 @@ export const getTrendingPostsByTime = async (
     default:
       dateThreshold = null;
   }
-  
-  const dateFilter = dateThreshold 
-    ? `&& publishedDate >= "${dateThreshold}"` 
+
+  const dateFilter = dateThreshold
+    ? `&& publishedDate >= "${dateThreshold}"`
     : '';
-  
-  const query = `*[_type == "blogPost" ${dateFilter}] | order(viewCount desc)[0...${limit}] {
+
+  const query = `*[_type == "blogPost" ${dateFilter}] | order(coalesce(likeCount, 0) desc)[0...${limit}] {
     _id,
     title,
     slug,
@@ -269,7 +269,7 @@ export const getTrendingPostsByTime = async (
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
     const result = await client.fetch(query);
     return result || [];
@@ -294,47 +294,47 @@ export interface SearchFilters {
 }
 
 export const searchPosts = async (
-  termOrFilters: string | SearchFilters, 
-  limit: number = 10, 
+  termOrFilters: string | SearchFilters,
+  limit: number = 10,
   offset: number = 0,
   sort: SearchSortOption = 'relevance'
 ): Promise<BlogPost[]> => {
   // Support both old signature and new filters object
-  const filters: SearchFilters = typeof termOrFilters === 'string' 
+  const filters: SearchFilters = typeof termOrFilters === 'string'
     ? { term: termOrFilters, limit, offset, sort }
     : termOrFilters;
-  
-  const { 
-    term, 
-    limit: searchLimit = 10, 
-    offset: searchOffset = 0, 
+
+  const {
+    term,
+    limit: searchLimit = 10,
+    offset: searchOffset = 0,
     sort: searchSort = 'relevance',
     category,
     dateFilter = 'all',
     tags = []
   } = filters;
-  
+
   const start = searchOffset;
   const end = searchOffset + searchLimit - 1;
-  
+
   // Build filter conditions
   let filterConditions = '_type == "blogPost"';
-  
+
   // Term search (title, excerpt, tags)
   if (term) {
     filterConditions += ' && (title match $term || excerpt match $term || $term in tags)';
   }
-  
+
   // Category filter
   if (category && category !== 'all') {
     filterConditions += ' && $category in categories[]->slug.current';
   }
-  
+
   // Date filter
   if (dateFilter && dateFilter !== 'all') {
     const now = new Date();
     let dateThreshold: Date;
-    
+
     switch (dateFilter) {
       case '24h':
         dateThreshold = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -353,13 +353,13 @@ export const searchPosts = async (
     }
     filterConditions += ` && publishedDate >= "${dateThreshold.toISOString()}"`;
   }
-  
+
   // Tags filter (any of the selected tags)
   if (tags.length > 0) {
     const tagConditions = tags.map(tag => `"${tag}" in tags`).join(' || ');
     filterConditions += ` && (${tagConditions})`;
   }
-  
+
   // Determine sort order
   let orderClause = '';
   switch (searchSort) {
@@ -374,7 +374,7 @@ export const searchPosts = async (
       orderClause = 'order(publishedDate desc)';
       break;
   }
-  
+
   const query = `*[${filterConditions}] | ${orderClause}[$start...$end] {
     _id,
     title,
@@ -391,11 +391,11 @@ export const searchPosts = async (
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
-    const result = await client.fetch(query, { 
-      term: term ? `*${term}*` : '', 
-      start, 
+    const result = await client.fetch(query, {
+      term: term ? `*${term}*` : '',
+      start,
       end,
       category: category || ''
     });
@@ -409,22 +409,22 @@ export const searchPosts = async (
 // Get total count for search results
 export const getSearchResultsCount = async (filters: SearchFilters): Promise<number> => {
   const { term, category, dateFilter = 'all', tags = [] } = filters;
-  
+
   // Build filter conditions
   let filterConditions = '_type == "blogPost"';
-  
+
   if (term) {
     filterConditions += ' && (title match $term || excerpt match $term || $term in tags)';
   }
-  
+
   if (category && category !== 'all') {
     filterConditions += ' && $category in categories[]->slug.current';
   }
-  
+
   if (dateFilter && dateFilter !== 'all') {
     const now = new Date();
     let dateThreshold: Date;
-    
+
     switch (dateFilter) {
       case '24h':
         dateThreshold = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -443,16 +443,16 @@ export const getSearchResultsCount = async (filters: SearchFilters): Promise<num
     }
     filterConditions += ` && publishedDate >= "${dateThreshold.toISOString()}"`;
   }
-  
+
   if (tags.length > 0) {
     const tagConditions = tags.map(tag => `"${tag}" in tags`).join(' || ');
     filterConditions += ` && (${tagConditions})`;
   }
-  
+
   const query = `count(*[${filterConditions}])`;
-  
+
   try {
-    return await client.fetch(query, { 
+    return await client.fetch(query, {
       term: term ? `*${term}*` : '',
       category: category || ''
     });
@@ -476,7 +476,7 @@ export interface SearchSuggestion {
 
 export const getSearchSuggestions = async (term: string, limit: number = 6): Promise<SearchSuggestion[]> => {
   if (!term || term.length < 2) return [];
-  
+
   try {
     // Search posts by title
     const postQuery = `*[_type == "blogPost" && title match $term] | order(viewCount desc)[0...${limit}] {
@@ -486,14 +486,14 @@ export const getSearchSuggestions = async (term: string, limit: number = 6): Pro
       "image": image.asset->url,
       excerpt
     }`;
-    
+
     // Search categories
     const categoryQuery = `*[_type == "category" && title match $term][0...3] {
       _id,
       title,
       "slug": slug.current
     }`;
-    
+
     // Search authors
     const authorQuery = `*[_type == "author" && name match $term][0...3] {
       _id,
@@ -501,19 +501,19 @@ export const getSearchSuggestions = async (term: string, limit: number = 6): Pro
       "slug": slug.current,
       "image": image.asset->url
     }`;
-    
+
     const [posts, categories, authors] = await Promise.all([
       client.fetch(postQuery, { term: `*${term}*` }),
       client.fetch(categoryQuery, { term: `*${term}*` }),
       client.fetch(authorQuery, { term: `*${term}*` }),
     ]);
-    
+
     const suggestions: SearchSuggestion[] = [
       ...(posts || []).map((p: any) => ({ ...p, type: 'post' as const })),
       ...(categories || []).map((c: any) => ({ ...c, type: 'category' as const })),
       ...(authors || []).map((a: any) => ({ ...a, type: 'author' as const })),
     ];
-    
+
     return suggestions.slice(0, limit);
   } catch (e) {
     console.error('Error fetching search suggestions:', e);
@@ -528,10 +528,10 @@ export const getPopularTags = async (limit: number = 10): Promise<{ tag: string;
   const query = `*[_type == "blogPost" && defined(tags)] {
     tags
   }`;
-  
+
   try {
     const posts = await client.fetch(query);
-    
+
     // Aggregate tags and count occurrences (case-insensitive)
     const tagCounts: Record<string, { displayName: string; count: number }> = {};
     posts.forEach((post: { tags: string[] }) => {
@@ -545,13 +545,13 @@ export const getPopularTags = async (limit: number = 10): Promise<{ tag: string;
         }
       });
     });
-    
+
     // Convert to array and sort by count
     const sortedTags = Object.values(tagCounts)
       .map(({ displayName, count }) => ({ tag: displayName, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, limit);
-    
+
     return sortedTags;
   } catch (e) {
     console.error('Error fetching tags:', e);
@@ -572,7 +572,7 @@ export const getAuthorBySlug = async (slug: string): Promise<Author | null> => {
     bio,
     social
   }`;
-  
+
   try {
     const result = await client.fetch(query, { slug });
     return result || null;
@@ -599,7 +599,7 @@ export const getPostsByAuthorId = async (authorId: string): Promise<BlogPost[]> 
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { authorId });
     return result || [];
@@ -621,7 +621,7 @@ export const getCategories = async (): Promise<(Category & { count: number })[]>
     color,
     "count": count(*[_type == "blogPost" && references(^._id)])
   }`;
-  
+
   try {
     const result = await client.fetch(query);
     return result || [];
@@ -644,7 +644,7 @@ export const getCommentsByPost = async (postId: string): Promise<Comment[]> => {
     parentComment,
     "subscriber": subscriber-> { _id, name, "avatar": avatar.asset->url, avatarUrl, subscriptionTier }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { postId });
     return result || [];
@@ -667,7 +667,7 @@ export const getSubscriberByEmail = async (email: string): Promise<Subscriber | 
     isSubscribed,
     subscriptionTier
   }`;
-  
+
   try {
     const result = await client.fetch(query, { email });
     return result || null;
@@ -682,14 +682,14 @@ export const getSubscriberByEmail = async (email: string): Promise<Subscriber | 
 // Check if user has liked a post
 export const checkUserLike = async (postId: string, subscriberId: string): Promise<Like | null> => {
   const query = `*[_type == "like" && post._ref == $postId && subscriber._ref == $subscriberId][0]`;
-  
+
   try {
     const result = await client.fetch(query, { postId, subscriberId });
     return result || null;
   } catch (e) {
     console.error('Error checking like:', e);
-      return null;
-    }
+    return null;
+  }
 };
 
 // Get all likes by a user
@@ -705,7 +705,7 @@ export const getUserLikes = async (subscriberId: string): Promise<any[]> => {
       "image": image.asset->url
     }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { subscriberId });
     return result || [];
@@ -728,7 +728,7 @@ export const getUserComments = async (subscriberId: string): Promise<any[]> => {
       "slug": slug.current
     }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { subscriberId });
     return result || [];
@@ -772,14 +772,14 @@ export const createComment = async (
       featured: false,
       createdAt: new Date().toISOString(),
     });
-    
+
     // Increment comment count on the post
     await writeClient
       .patch(postId)
       .setIfMissing({ commentCount: 0 })
       .inc({ commentCount: 1 })
       .commit();
-    
+
     return comment as Comment;
   } catch (e) {
     console.error('Error creating comment:', e);
@@ -792,7 +792,7 @@ export const toggleLike = async (postId: string, subscriberId: string): Promise<
   try {
     // Check if like exists
     const existingLike = await checkUserLike(postId, subscriberId);
-    
+
     if (existingLike) {
       // Remove like
       await writeClient.delete(existingLike._id);
@@ -817,7 +817,7 @@ export const toggleLike = async (postId: string, subscriberId: string): Promise<
         .commit();
       return true;
     }
-    } catch (e) {
+  } catch (e) {
     console.error('Error toggling like:', e);
     return false;
   }
@@ -834,7 +834,7 @@ export const createSubscriber = async (
     if (existing) {
       return existing;
     }
-    
+
     const subscriber = await writeClient.create({
       _type: 'subscriber',
       name,
@@ -855,7 +855,7 @@ export const createSubscriber = async (
 // Check if user has saved a post (using savedBy array on blogPost)
 export const checkUserSavedPost = async (postId: string, subscriberId: string): Promise<boolean> => {
   const query = `*[_type == "blogPost" && _id == $postId && $subscriberId in savedBy[]._ref][0]`;
-  
+
   try {
     const result = await client.fetch(query, { postId, subscriberId });
     return !!result;
@@ -878,14 +878,14 @@ export const getUserSavedPosts = async (subscriberId: string): Promise<any[]> =>
     "author": author-> { name, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug }
   }`;
-  
+
   try {
     const result = await client.fetch(query, { subscriberId });
     // Wrap in post object for consistent structure with Profile page
-    return (result || []).map((post: any) => ({ 
-      _id: post._id, 
+    return (result || []).map((post: any) => ({
+      _id: post._id,
       post,
-      createdAt: post.publishedDate 
+      createdAt: post.publishedDate
     }));
   } catch (e) {
     console.error('Error fetching saved posts:', e);
@@ -898,7 +898,7 @@ export const toggleSavedPost = async (postId: string, subscriberId: string): Pro
   try {
     // Check if already saved
     const isSaved = await checkUserSavedPost(postId, subscriberId);
-    
+
     if (isSaved) {
       // Remove from savedBy array
       await writeClient
@@ -927,10 +927,10 @@ export const toggleSavedPost = async (postId: string, subscriberId: string): Pro
 export const getArchivePosts = async (limit: number = 12, offset: number = 0): Promise<BlogPost[]> => {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  
+
   const start = offset;
   const end = offset + limit - 1;
-  
+
   const query = `*[_type == "blogPost" && publishedDate < $dateThreshold] | order(publishedDate desc)[$start...$end] {
     _id,
     title,
@@ -946,12 +946,12 @@ export const getArchivePosts = async (limit: number = 12, offset: number = 0): P
     "author": author-> { _id, name, slug, "image": image.asset->url },
     "categories": categories[]-> { _id, title, slug, color }
   }`;
-  
+
   try {
-    const result = await client.fetch(query, { 
+    const result = await client.fetch(query, {
       dateThreshold: oneWeekAgo.toISOString(),
-      start, 
-      end 
+      start,
+      end
     });
     return result || [];
   } catch (e) {

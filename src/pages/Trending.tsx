@@ -99,8 +99,8 @@ export const Trending: React.FC = () => {
                 key={key}
                 onClick={() => setActiveFilter(key)}
                 className={`flex h-9 shrink-0 items-center justify-center px-4 rounded-full transition-colors cursor-pointer ${activeFilter === key
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary-dark'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-transparent'
+                  ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary-dark'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-transparent'
                   }`}
               >
                 <span className="text-sm font-medium">{label}</span>
@@ -121,6 +121,10 @@ export const Trending: React.FC = () => {
             <div className="flex w-full md:w-2/5 flex-col justify-center p-6 md:p-8 lg:p-10 gap-4">
               <div className="flex items-center gap-2 w-full">
                 <span className="px-2.5 py-1 rounded bg-primary/10 text-primary text-xs font-bold uppercase tracking-wide">{heroPost.categories?.[0]?.title}</span>
+                <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-sm ml-auto">
+                  <span className="material-symbols-outlined text-sm text-red-500">favorite</span>
+                  <span>{heroPost.likeCount || 0}</span>
+                </div>
               </div>
               <Link to={`/article/${getSlug(heroPost.slug)}`}>
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight text-slate-900 dark:text-white group-hover:text-primary transition-colors cursor-pointer font-display">
@@ -151,6 +155,10 @@ export const Trending: React.FC = () => {
             <div className="flex flex-col gap-3 p-5 flex-1">
               <div className="flex justify-between items-start">
                 <span className="text-primary text-xs font-bold uppercase tracking-wider">{item.categories?.[0]?.title}</span>
+                <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs">
+                  <span className="material-symbols-outlined text-xs text-red-500">favorite</span>
+                  <span>{item.likeCount || 0}</span>
+                </div>
               </div>
               <Link to={`/article/${getSlug(item.slug)}`}>
                 <h3 className="text-slate-900 dark:text-white text-xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2 font-display">
