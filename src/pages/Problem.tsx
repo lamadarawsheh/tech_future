@@ -32,6 +32,13 @@ const DARK_THEMES = {
     selection: 'selection:bg-[#264f78]',
     border: 'border-[#3c3c3c]',
     headerBg: 'bg-[#252526]',
+    syntax: {
+      keyword: '#569cd6',
+      string: '#ce9178',
+      comment: '#6a9955',
+      function: '#dcdcaa',
+      number: '#b5cea8'
+    }
   },
   dracula: {
     name: 'Dracula',
@@ -42,6 +49,13 @@ const DARK_THEMES = {
     selection: 'selection:bg-[#44475a]',
     border: 'border-[#44475a]',
     headerBg: 'bg-[#21222c]',
+    syntax: {
+      keyword: '#ff79c6',
+      string: '#f1fa8c',
+      comment: '#6272a4',
+      function: '#50fa7b',
+      number: '#bd93f9'
+    }
   },
   monokai: {
     name: 'Monokai',
@@ -50,18 +64,32 @@ const DARK_THEMES = {
     lineNumber: 'text-[#90908a]',
     lineNumberBg: 'bg-[#272822]',
     selection: 'selection:bg-[#49483e]',
-    border: 'border-[#3e3d32]',
+    border: 'border-[#49483e]',
     headerBg: 'bg-[#1e1f1c]',
+    syntax: {
+      keyword: '#f92672',
+      string: '#e6db74',
+      comment: '#75715e',
+      function: '#a6e22e',
+      number: '#ae81ff'
+    }
   },
   'github-dark': {
     name: 'GitHub Dark',
     bg: 'bg-[#0d1117]',
     text: 'text-[#c9d1d9]',
-    lineNumber: 'text-[#484f58]',
+    lineNumber: 'text-[#6e7681]',
     lineNumberBg: 'bg-[#0d1117]',
-    selection: 'selection:bg-[#388bfd26]',
+    selection: 'selection:bg-[#1f6feb]',
     border: 'border-[#30363d]',
-    headerBg: 'bg-[#161b22]',
+    headerBg: 'bg-[#010409]',
+    syntax: {
+      keyword: '#ff7b72',
+      string: '#a5d6ff',
+      comment: '#8b949e',
+      function: '#d2a8ff',
+      number: '#79c0ff'
+    }
   },
   nord: {
     name: 'Nord',
@@ -70,22 +98,53 @@ const DARK_THEMES = {
     lineNumber: 'text-[#4c566a]',
     lineNumberBg: 'bg-[#2e3440]',
     selection: 'selection:bg-[#434c5e]',
-    border: 'border-[#3b4252]',
+    border: 'border-[#434c5e]',
     headerBg: 'bg-[#242933]',
+    syntax: {
+      keyword: '#81a1c1',
+      string: '#a3be8c',
+      comment: '#616e88',
+      function: '#88c0d0',
+      number: '#b48ead'
+    }
   },
+  'high-contrast-dark': {
+    name: 'High Contrast',
+    bg: 'bg-[#000000]',
+    text: 'text-[#ffffff]',
+    lineNumber: 'text-[#ffff00]',
+    lineNumberBg: 'bg-[#000000]',
+    selection: 'selection:bg-[#0000ff]',
+    border: 'border-[#ffffff]',
+    headerBg: 'bg-[#1a1a1a]',
+    syntax: {
+      keyword: '#00ffff',
+      string: '#00ff00',
+      comment: '#ffff00',
+      function: '#ff00ff',
+      number: '#ff8000'
+    }
+  }
 };
 
 // Light themes
 const LIGHT_THEMES = {
   'github-light': {
-    name: 'GitHub Light',
+    name: 'GitHub',
     bg: 'bg-[#ffffff]',
-    text: 'text-[#24292f]',
-    lineNumber: 'text-[#8c959f]',
+    text: 'text-[#1f2328]',
+    lineNumber: 'text-[#656d76]',
     lineNumberBg: 'bg-[#ffffff]',
     selection: 'selection:bg-[#0969da26]',
-    border: 'border-[#d0d7de]',
+    border: 'border-[#d1d9e0]',
     headerBg: 'bg-[#f6f8fa]',
+    syntax: {
+      keyword: '#d73a49',
+      string: '#032f62',
+      comment: '#6a737d',
+      function: '#6f42c1',
+      number: '#005cc5'
+    }
   },
   'solarized-light': {
     name: 'Solarized',
@@ -96,6 +155,13 @@ const LIGHT_THEMES = {
     selection: 'selection:bg-[#eee8d5]',
     border: 'border-[#eee8d5]',
     headerBg: 'bg-[#eee8d5]',
+    syntax: {
+      keyword: '#859900',
+      string: '#2aa198',
+      comment: '#93a1a1',
+      function: '#268bd2',
+      number: '#d33682'
+    }
   },
   'one-light': {
     name: 'One Light',
@@ -106,22 +172,117 @@ const LIGHT_THEMES = {
     selection: 'selection:bg-[#e5e5e6]',
     border: 'border-[#e5e5e6]',
     headerBg: 'bg-[#eaeaeb]',
+    syntax: {
+      keyword: '#a626a4',
+      string: '#50a14f',
+      comment: '#a0a1a7',
+      function: '#4078f2',
+      number: '#986801'
+    }
   },
   'xcode-light': {
     name: 'Xcode',
     bg: 'bg-[#ffffff]',
-    text: 'text-[#000000]',
+    text: 'text-[#262626]',
     lineNumber: 'text-[#b4b4b4]',
     lineNumberBg: 'bg-[#ffffff]',
     selection: 'selection:bg-[#b4d8fd]',
-    border: 'border-[#e5e5e5]',
+    border: 'border-[#e0e0e0]',
     headerBg: 'bg-[#f4f4f4]',
+    syntax: {
+      keyword: '#ad3da4',
+      string: '#c41a16',
+      comment: '#007400',
+      function: '#000000',
+      number: '#1c00cf'
+    }
   },
+  'material-light': {
+    name: 'Material',
+    bg: 'bg-[#ffffff]',
+    text: 'text-[#2c3e50]',
+    lineNumber: 'text-[#90a4ae]',
+    lineNumberBg: 'bg-[#ffffff]',
+    selection: 'selection:bg-[#e0e0e0]',
+    border: 'border-[#e0e0e0]',
+    headerBg: 'bg-[#eceff1]',
+    syntax: {
+      keyword: '#7c4dff',
+      string: '#00bfa5',
+      comment: '#b0bec5',
+      function: '#3949ab',
+      number: '#f44336'
+    }
+  },
+  'ayu-light': {
+    name: 'Ayu',
+    bg: 'bg-[#fcfcfc]',
+    text: 'text-[#5c6166]',
+    lineNumber: 'text-[#8a9199]',
+    lineNumberBg: 'bg-[#fcfcfc]',
+    selection: 'selection:bg-[#e7eaed]',
+    border: 'border-[#d9dce0]',
+    headerBg: 'bg-[#f3f4f5]',
+    syntax: {
+      keyword: '#fa8d3e',
+      string: '#86b300',
+      comment: '#abb0b6',
+      function: '#f29718',
+      number: '#a37acc'
+    }
+  },
+  'high-contrast-light': {
+    name: 'High Contrast',
+    bg: 'bg-[#ffffff]',
+    text: 'text-[#000000]',
+    lineNumber: 'text-[#000080]',
+    lineNumberBg: 'bg-[#ffffff]',
+    selection: 'selection:bg-[#b3d4fc]',
+    border: 'border-[#000000]',
+    headerBg: 'bg-[#f0f0f0]',
+    syntax: {
+      keyword: '#0000ff',
+      string: '#008000',
+      comment: '#d00000',
+      function: '#800080',
+      number: '#000080'
+    }
+  }
 };
 
 const EDITOR_THEMES = { ...DARK_THEMES, ...LIGHT_THEMES };
 
 type ThemeKey = keyof typeof EDITOR_THEMES;
+
+const highlightCode = (code: string, syntax: any) => {
+  if (!code) return '';
+
+  const escapeHtml = (str: string) =>
+    str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // Token regex: Comments, Strings, Keywords, Functions, Numbers
+  const tokenRegex = /(\/\/.*|\/\*[\s\S]*?\*\/|#.*)|(".*?"|'.*?'|`[\s\S]*?`)|(\b(?:def|class|return|if|else|elif|while|for|in|import|from|as|try|except|finally|public|private|protected|void|int|float|double|string|char|boolean|new|this|super|extends|implements|interface|package|static|final|const|let|var|function|await|async|switch|case|break|continue|default|return)\b)|(\b[a-zA-Z_]\w*(?=\())|(\b\d+\b)/g;
+
+  let lastIndex = 0;
+  let result = '';
+  let match;
+
+  while ((match = tokenRegex.exec(code)) !== null) {
+    result += escapeHtml(code.slice(lastIndex, match.index));
+    const [fullMatch, comment, string, keyword, func, number] = match;
+
+    if (comment) result += `<span style="color: ${syntax.comment}">${escapeHtml(comment)}</span>`;
+    else if (string) result += `<span style="color: ${syntax.string}">${escapeHtml(string)}</span>`;
+    else if (keyword) result += `<span style="color: ${syntax.keyword}">${escapeHtml(keyword)}</span>`;
+    else if (func) result += `<span style="color: ${syntax.function}">${escapeHtml(func)}</span>`;
+    else if (number) result += `<span style="color: ${syntax.number}">${escapeHtml(number)}</span>`;
+
+    lastIndex = tokenRegex.lastIndex;
+  }
+
+  result += escapeHtml(code.slice(lastIndex));
+  return result;
+};
 
 const Problem: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -168,6 +329,8 @@ const Problem: React.FC = () => {
       'solarized-light',
       'one-light',
       'xcode-light',
+      'material-light',
+      'ayu-light',
     ];
 
     if (isDarkMode && lightThemes.includes(editorTheme)) {
@@ -977,17 +1140,50 @@ const Problem: React.FC = () => {
 
               {/* Editor Area */}
               <div className="flex-1 relative">
+                {/* Syntax Highlighting Layer */}
+                <pre
+                  aria-hidden="true"
+                  className={`absolute inset-0 p-4 m-0 overflow-hidden whitespace-pre pointer-events-none ${theme.bg} ${theme.text}`}
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: `${fontSize}px`,
+                    lineHeight: '1.5rem',
+                  }}
+                >
+                  <code
+                    dangerouslySetInnerHTML={{
+                      __html: highlightCode(code, theme.syntax || {
+                        keyword: '#569cd6',
+                        string: '#ce9178',
+                        comment: '#6a9955',
+                        function: '#dcdcaa',
+                        number: '#b5cea8'
+                      }) + '<br />'
+                    }}
+                  />
+                </pre>
+
+                {/* Input Layer */}
                 <textarea
                   ref={codeEditorRef}
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className={`w-full h-full ${theme.bg} ${theme.text} ${theme.selection} font-mono p-4 resize-none focus:outline-none leading-6`}
+                  onScroll={(e) => {
+                    const pre = e.currentTarget.previousSibling as HTMLPreElement;
+                    if (pre) {
+                      pre.scrollTop = e.currentTarget.scrollTop;
+                      pre.scrollLeft = e.currentTarget.scrollLeft;
+                    }
+                  }}
+                  className={`absolute inset-0 w-full h-full p-4 m-0 resize-none focus:outline-none bg-transparent text-transparent caret-white whitespace-pre overflow-auto ${theme.selection}`}
                   spellCheck={false}
                   style={{
+                    fontFamily: 'monospace',
                     fontSize: `${fontSize}px`,
+                    lineHeight: '1.5rem',
                     tabSize: 4,
-                    caretColor: '#10b981',
+                    caretColor: isDarkMode ? '#fff' : '#000',
                   }}
                 />
               </div>
@@ -1064,8 +1260,8 @@ const Problem: React.FC = () => {
           {/* Bottom Action Bar */}
           <div
             className={`border-t px-4 py-3 ${isDarkMode
-                ? 'border-slate-800 bg-slate-900'
-                : 'border-slate-200 bg-slate-50'
+              ? 'border-slate-800 bg-slate-900'
+              : 'border-slate-200 bg-slate-50'
               }`}
           >
             <div className="flex items-center gap-3">
