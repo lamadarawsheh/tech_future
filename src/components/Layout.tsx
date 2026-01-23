@@ -1,7 +1,9 @@
+'use client';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import Link from '../../app/components/Link';
+import { usePathname, useRouter } from 'next/navigation';
 import { ChatInterface } from './ChatInterface';
 import { AuthModal } from './AuthModal';
 import { Logo } from './Logo';
@@ -17,16 +19,29 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
-  }, [i18n.language]);
+
+    // Sync dark mode class
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [i18n.language, isDarkMode]);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'en' ? 'ar' : 'en';
     i18n.changeLanguage(newLang);
   };
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const isAcademyPage = pathname && ['/academy', '/practice', '/challenges', '/leaderboard', '/submissions', '/lesson', '/problem'].some(path => pathname.startsWith(path));
+  const router = useRouter();
   const { user, subscriber, loading: authLoading, signOut } = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -108,7 +123,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
       setSuggestions([]);
       searchInputRef.current?.blur();
@@ -117,13 +132,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
     if (suggestion.type === 'post') {
-      navigate(`/article/${suggestion.slug}`);
+      router.push(`/article/${suggestion.slug}`);
     } else if (suggestion.type === 'category') {
-      navigate(`/category/${suggestion.slug}`);
+      router.push(`/category/${suggestion.slug}`);
     } else if (suggestion.type === 'author') {
-      navigate(`/author/${suggestion.slug}`);
+      router.push(`/author/${suggestion.slug}`);
     } else if (suggestion.type === 'tag') {
-      navigate(`/search?tag=${suggestion.title}`);
+      router.push(`/search?tag=${suggestion.title}`);
     }
     setSearchQuery('');
     setSuggestions([]);
@@ -163,29 +178,31 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
     return () => document.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
+  if (!isMounted) return <div className="min-h-screen bg-background-light dark:bg-background-dark" />;
+
   return (
     <div
       className={`min-h-screen w-full flex flex-col ${isDarkMode ? 'dark' : ''
         } bg-background-light dark:bg-background-dark text-slate-600 dark:text-slate-300`}
     >
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-border-light dark:border-border-dark bg-surface-light/90 dark:bg-surface-dark/90 glass-panel transition-colors duration-300">
+      <header className={`sticky top-0 z-50 w-full border-b border-border-light dark:border-border-dark bg-surface-light/90 dark:bg-surface-dark/90 glass-panel transition-colors duration-300 ${isAcademyPage ? 'hidden' : ''}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between gap-8">
-            <div className="flex items-center gap-10">
+          <div className="flex h-16 md:h-20 items-center justify-between gap-2 sm:gap-4 md:gap-8">
+            <div className="flex items-center gap-4 md:gap-10">
               <Link
                 to="/"
-                className="flex items-center gap-3 text-slate-900 dark:text-white group"
+                className="flex items-center gap-2 md:gap-3 text-slate-900 dark:text-white group"
               >
-                <Logo size={52} className="text-cyan-500 transition-transform group-hover:scale-110 group-hover:rotate-3" />
-                <h2 className="text-2xl font-extrabold tracking-tight font-display">
+                <Logo size={40} className="md:w-[52px] md:h-[52px] text-cyan-500 transition-transform group-hover:scale-110 group-hover:rotate-3" />
+                <h2 className="text-base sm:text-xl md:text-2xl font-extrabold tracking-tight font-display whitespace-nowrap">
                   Bot & Beam
                 </h2>
               </Link>
               <nav className="hidden md:flex items-center gap-8">
                 <Link
                   to="/"
-                  className={`text-sm font-semibold transition-colors ${location.pathname === '/'
+                  className={`text-sm font-semibold transition-colors ${pathname === '/'
                     ? 'text-primary'
                     : 'text-slate-900 dark:text-white hover:text-primary dark:hover:text-primary'
                     }`}
@@ -194,7 +211,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 </Link>
                 <Link
                   to="/trending"
-                  className={`text-sm font-semibold transition-colors ${location.pathname === '/trending'
+                  className={`text-sm font-semibold transition-colors ${pathname === '/trending'
                     ? 'text-primary'
                     : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
@@ -203,103 +220,40 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 </Link>
                 <Link
                   to="/categories"
-                  className={`text-sm font-semibold transition-colors ${location.pathname.includes('/category')
+                  className={`text-sm font-semibold transition-colors ${pathname.includes('/category')
                     ? 'text-primary'
                     : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
                 >
                   {t('nav.categories')}
                 </Link>
-                {/* Coding Platform Dropdown */}
-                <div className="relative group">
-                  <button
-                    className={`flex items-center gap-1 text-sm font-semibold transition-colors ${[
-                      '/practice',
-                      '/challenges',
-                      '/leaderboard',
-                      '/submissions',
-                    ].some((p) => location.pathname.startsWith(p))
-                      ? 'text-primary'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
-                      }`}
-                  >
-                    <span className="relative">
-                      <span className="animate-text-shine bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent font-bold">
-                        {t('nav.practice')}
-                      </span>
-                      <span className="absolute -top-1 -right-2 flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                      </span>
+                {/* Academy Link */}
+                <Link
+                  to="/academy"
+                  className={`flex items-center gap-1 text-sm font-semibold transition-colors ${[
+                    '/academy',
+                    '/practice',
+                    '/challenges',
+                    '/leaderboard',
+                    '/submissions',
+                  ].some((p) => pathname.startsWith(p))
+                    ? 'text-primary'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
+                    }`}
+                >
+                  <span className="relative">
+                    <span className="animate-text-shine bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent font-bold">
+                      {t('nav.academy')}
                     </span>
-                    <span className="material-symbols-outlined text-[16px]">
-                      expand_more
+                    <span className="absolute -top-1 -right-2 flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                  </button>
-                  <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 min-w-[200px]">
-                      <Link
-                        to="/practice"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-emerald-500 text-[20px]">
-                          terminal
-                        </span>
-                        <div>
-                          <p className="font-medium">{t('nav.practiceArena')}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {t('nav.solveChallenges')}
-                          </p>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/challenges"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-cyan-500 text-[20px]">
-                          school
-                        </span>
-                        <div>
-                          <p className="font-medium">{t('nav.learningPaths')}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {t('nav.structuredCourses')}
-                          </p>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/leaderboard"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-amber-500 text-[20px]">
-                          leaderboard
-                        </span>
-                        <div>
-                          <p className="font-medium">{t('nav.leaderboard')}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {t('nav.rankings')}
-                          </p>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/submissions"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-blue-500 text-[20px]">
-                          history
-                        </span>
-                        <div>
-                          <p className="font-medium">{t('nav.mySubmissions')}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {t('nav.trackProgress')}
-                          </p>
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
+                  </span>
+                </Link>
                 <Link
                   to="/newsletter"
-                  className={`text-sm font-semibold transition-colors ${location.pathname === '/newsletter'
+                  className={`text-sm font-semibold transition-colors ${pathname === '/newsletter'
                     ? 'text-primary'
                     : 'text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary'
                     }`}
@@ -619,23 +573,25 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                     </div>
                   )}
               </form>
-              <button
-                onClick={toggleTheme}
-                aria-label="Toggle Theme"
-                className="flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  {isDarkMode ? 'light_mode' : 'dark_mode'}
-                </span>
-              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  onClick={toggleTheme}
+                  aria-label="Toggle Theme"
+                  className="flex items-center justify-center size-9 md:size-10 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
+                >
+                  <span className="material-symbols-outlined text-[18px] md:text-[20px]">
+                    {isDarkMode ? 'light_mode' : 'dark_mode'}
+                  </span>
+                </button>
 
-              <button
-                onClick={toggleLanguage}
-                aria-label="Toggle Language"
-                className="flex items-center justify-center size-10 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-sm"
-              >
-                {i18n.language === 'en' ? 'AR' : 'EN'}
-              </button>
+                <button
+                  onClick={toggleLanguage}
+                  aria-label="Toggle Language"
+                  className="flex items-center justify-center size-9 md:size-10 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-xs md:text-sm"
+                >
+                  {i18n.language === 'en' ? 'AR' : 'EN'}
+                </button>
+              </div>
               {/* Auth Button / User Menu */}
               {isAuthenticated ? (
                 <div className="relative">
@@ -691,16 +647,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                             </span>
                             {t('nav.savedArticles')}
                           </Link>
-                          <Link
-                            to="/Submissions"
-                            onClick={() => setShowUserMenu(false)}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">
-                              check_circle
-                            </span>
-                            {t('nav.mySubmissions')}
-                          </Link>
                         </div>
                         <div className="p-2">
                           <button
@@ -723,9 +669,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="flex items-center justify-center gap-1.5 rounded-full bg-slate-900 dark:bg-white px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white dark:text-slate-900 transition-all hover:bg-primary dark:hover:bg-primary dark:hover:text-white hover:shadow-lg hover:shadow-primary/25 active:scale-95 whitespace-nowrap min-w-[80px] sm:min-w-[100px]"
+                  className="flex items-center justify-center gap-1.5 rounded-full bg-slate-900 dark:bg-white px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white dark:text-slate-900 transition-all hover:bg-primary dark:hover:bg-primary dark:hover:text-white hover:shadow-lg hover:shadow-primary/25 active:scale-95 whitespace-nowrap"
                 >
-                  <span className="material-symbols-outlined text-[14px] sm:text-[16px]">login</span>
+                  <span className="material-symbols-outlined text-[14px] sm:text-[18px]">login</span>
                   <span>{t('nav.signIn')}</span>
                 </button>
               )}
@@ -742,14 +688,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
                 )}
               </button>
             </div>
-          </div>
-        </div>
-      </header>
+          </div >
+        </div >
+      </header >
 
-      {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
-        className={`fixed inset-y-0 left-0 w-64 z-50 bg-white dark:bg-slate-900 shadow-xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 right-0 w-64 z-50 bg-white dark:bg-slate-900 shadow-xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           } md:hidden`}
       >
         <div className="flex flex-col h-full p-4">
@@ -797,107 +742,58 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               <span className="material-symbols-outlined mr-3">info</span>
               <span>{t('nav.about')}</span>
             </Link>
-            <div className="space-y-1">
-              <button
-                onClick={() => setIsPracticeOpen(!isPracticeOpen)}
-                className="flex items-center justify-between w-full px-4 py-3 text-left text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                <div className="flex items-center">
-                  <span className="material-symbols-outlined mr-3">code</span>
-                  <span className="relative">
-                    <span className="animate-text-shine bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent font-bold">
-                      {t('nav.practice')}
-                    </span>
-                    <span className="absolute -top-1 -right-4 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                  </span>
-                </div>
-                <span className={`material-symbols-outlined transition-transform duration-200 ${isPracticeOpen ? 'rotate-180' : ''}`}>
-                  expand_more
+            <Link
+              to="/academy"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              <div className="flex items-center">
+                <span className="material-symbols-outlined mr-3 text-emerald-500">terminal</span>
+                <span className="font-bold bg-gradient-to-r from-emerald-500 via-cyan-400 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent">
+                  {t('nav.academy')}
                 </span>
-              </button>
-
-              <div
-                className={`overflow-hidden transition-all duration-200 ease-in-out ${isPracticeOpen ? 'max-h-64' : 'max-h-0'}`}
-              >
-                <div className="ml-8 space-y-1 py-1">
-                  <Link
-                    to="/practice"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-emerald-500 text-[20px]">
-                      terminal
-                    </span>
-                    <div>
-                      <p className="font-medium">{t('nav.practiceArena')}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {t('nav.solveChallenges')}
-                      </p>
-                    </div>
-                  </Link>
-                  <Link
-                    to="/challenges"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-cyan-500 text-[20px]">
-                      school
-                    </span>
-                    <div>
-                      <p className="font-medium">{t('nav.learningPaths')}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {t('nav.structuredCourses')}
-                      </p>
-                    </div>
-                  </Link>
-                  <Link
-                    to="/leaderboard"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-amber-500 text-[20px]">
-                      leaderboard
-                    </span>
-                    <div>
-                      <p className="font-medium">{t('nav.leaderboard')}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {t('nav.rankings')}
-                      </p>
-                    </div>
-                  </Link>
-                  <Link
-                    to="/submissions"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-purple-500 text-[20px]">
-                      description
-                    </span>
-                    <div>
-                      <p className="font-medium">{t('nav.mySubmissions')}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {t('nav.viewSolutions')}
-                      </p>
-                    </div>
-                  </Link>
-                </div>
+                <span className="ml-2 relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
               </div>
-            </div>
+            </Link>
           </nav>
 
-          <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-6">
+            <div className="flex items-center justify-between sm:hidden">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-slate-900 dark:text-white">{t('nav.appearance')}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">{isDarkMode ? t('nav.darkMode') : t('nav.lightMode')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center justify-center size-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-primary transition-colors"
+                  aria-label="Toggle Theme"
+                >
+                  <span className="material-symbols-outlined">
+                    {isDarkMode ? 'light_mode' : 'dark_mode'}
+                  </span>
+                </button>
+                <button
+                  onClick={toggleLanguage}
+                  className="flex items-center justify-center h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm hover:text-primary transition-colors"
+                  aria-label="Toggle Language"
+                >
+                  {i18n.language === 'en' ? 'AR' : 'EN'}
+                </button>
+              </div>
+            </div>
             {!isAuthenticated ? (
               <button
                 onClick={() => {
                   setShowAuthModal(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-center py-2 px-4 bg-slate-900 hover:bg-primary text-white font-medium rounded-lg transition-colors dark:bg-white dark:text-slate-900 dark:hover:bg-primary dark:hover:text-white"
+                className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-slate-900 hover:bg-primary text-white font-medium rounded-lg transition-colors dark:bg-white dark:text-slate-900 dark:hover:bg-primary dark:hover:text-white"
               >
-                <span className="material-symbols-outlined mr-2">login</span>
+                <span className="material-symbols-outlined">login</span>
                 <span>{t('nav.signIn')}</span>
               </button>
             ) : (
@@ -913,39 +809,24 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
               </button>
             )}
 
-            <button
-              onClick={() => {
-                toggleTheme();
-              }}
-              className="w-full mt-3 flex items-center px-4 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            >
-              {isDarkMode ? (
-                <>
-                  <span className="material-symbols-outlined mr-3">light_mode</span>
-                  <span>{t('nav.lightMode')}</span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined mr-3">dark_mode</span>
-                  <span>{t('nav.darkMode')}</span>
-                </>
-              )}
-            </button>
+
           </div>
         </div>
       </div>
 
       {/* Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
+      {
+        isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )
+      }
 
       {/* Main Content */}
-      <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className={`flex-grow w-full ${isAcademyPage ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10'}`}>
         {children}
       </main>
 
@@ -968,21 +849,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
       <ChatInterface />
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-surface-light dark:bg-background-dark py-16 mt-10">
+      <footer className={`border-t border-slate-200 dark:border-slate-800 bg-surface-light dark:bg-background-dark py-16 mt-10 ${isAcademyPage ? 'hidden' : ''}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             {/* Brand */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-primary">
-                  <span className="material-symbols-outlined text-[24px]">
-                    hub
-                  </span>
-                </div>
-                <span className="text-xl font-bold text-slate-900 dark:text-white font-display">
+              <Link
+                to="/"
+                className="flex items-center gap-3 text-slate-900 dark:text-white group"
+              >
+                <Logo size={42} className="text-cyan-500 transition-transform group-hover:scale-110 group-hover:rotate-3" />
+                <span className="text-xl font-bold font-display">
                   Bot & Beam
                 </span>
-              </div>
+              </Link>
               <p className="text-slate-500 text-sm leading-relaxed">
                 {t('footer.tagline')}
               </p>
@@ -1132,6 +1012,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
       />
-    </div>
+    </div >
   );
 };

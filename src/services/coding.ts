@@ -1,17 +1,23 @@
 // services/coding.ts - Coding Platform API Services
 
 import { client, writeClient } from '../lib/sanity';
-import { 
-  CodingChallenge, 
-  Submission, 
-  UserCodingProfile, 
-  LearningPath, 
+import {
+  CodingChallenge,
+  Submission,
+  UserCodingProfile,
+  LearningPath,
   UserProgress,
   Difficulty,
   SubmissionStatus,
   ProgrammingLanguage,
   getLevelFromXp
 } from '../types/coding';
+
+// Helper to normalize language code
+const normalizeLang = (lang: string = 'en'): string => {
+  if (!lang) return 'en';
+  return lang.split('-')[0].toLowerCase();
+};
 
 // ==================== PISTON CODE EXECUTION API ====================
 
@@ -61,7 +67,7 @@ const generateWrapper = (userCode: string, language: ProgrammingLanguage, stdin:
 
   // Detect function name from user code
   let functionName = '';
-  
+
   if (language === 'python') {
     // Match: def function_name(
     const match = userCode.match(/def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/);
@@ -69,7 +75,7 @@ const generateWrapper = (userCode: string, language: ProgrammingLanguage, stdin:
   } else if (language === 'javascript' || language === 'typescript') {
     // Match: function functionName( or const functionName = 
     const match = userCode.match(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/) ||
-                  userCode.match(/(?:const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=/);
+      userCode.match(/(?:const|let|var)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=/);
     if (match) functionName = match[1];
   }
 
@@ -195,7 +201,7 @@ const _result = ${functionName}(..._args);
 console.log(typeof _result === 'object' ? JSON.stringify(_result) : _result);
 `;
   }
-  
+
   // For other languages, return code as-is
   return userCode;
 };
@@ -207,7 +213,7 @@ export const executeCode = async (
   stdin: string = ''
 ): Promise<ExecutionResult> => {
   const pistonLanguage = LANGUAGE_MAP[language];
-  
+
   if (!pistonLanguage) {
     return {
       success: false,
@@ -223,13 +229,13 @@ export const executeCode = async (
   const wrappedCode = generateWrapper(code, language, stdin);
 
   try {
-    console.log('Executing code with Piston:', { 
-      language: pistonLanguage, 
-      codeLength: wrappedCode.length, 
+    console.log('Executing code with Piston:', {
+      language: pistonLanguage,
+      codeLength: wrappedCode.length,
       stdin,
-      hasWrapper: wrappedCode !== code 
+      hasWrapper: wrappedCode !== code
     });
-    
+
     const response = await fetch(`${PISTON_API_URL}/execute`, {
       method: 'POST',
       headers: {
@@ -258,7 +264,7 @@ export const executeCode = async (
 
     const data = await response.json();
     console.log('Piston response data:', data);
-    
+
     const executionTime = Date.now() - startTime;
 
     // Check for compilation errors
@@ -336,24 +342,24 @@ export const runTestCases = async (
 
   for (const testCase of testCases) {
     const result = await executeCode(code, language, testCase.input);
-    
+
     // Normalize outputs for comparison
     const normalizedExpected = normalizeOutput(testCase.expectedOutput);
     const normalizedActual = normalizeOutput(result.output);
-    
+
     // Check for match (also try without quotes for string outputs)
     const passed = result.success && (
       normalizedActual === normalizedExpected ||
       normalizedActual === normalizedExpected.replace(/"/g, '') ||
       normalizedActual.replace(/"/g, '') === normalizedExpected
     );
-    
+
     if (passed) {
       totalPassed++;
     }
-    
+
     totalRuntime += result.executionTime;
-    
+
     results.push({
       passed,
       input: testCase.input,
@@ -362,7 +368,7 @@ export const runTestCases = async (
       error: result.error,
       executionTime: result.executionTime
     });
-    
+
     console.log('Test case comparison:', {
       input: testCase.input,
       expected: normalizedExpected,
@@ -388,14 +394,17 @@ export const getChallenges = async (
     difficulty?: Difficulty;
     category?: string;
     tag?: string;
+    lang?: string;
   },
   limit: number = 20,
   offset: number = 0
 ): Promise<CodingChallenge[]> => {
   const start = offset;
-  const end = offset + limit - 1;
-  
-  let filterConditions = '_type == "codingChallenge"';
+  const end = offset + limit;
+  const rawLang = filters?.lang || 'en';
+  const lang = normalizeLang(rawLang);
+
+  let filterConditions = `_type == "codingChallenge" && (language == $lang || (!defined(language) && $lang == "en"))`;
   if (filters?.difficulty) {
     filterConditions += ` && difficulty == "${filters.difficulty}"`;
   }
@@ -423,7 +432,7 @@ export const getChallenges = async (
   }`;
 
   try {
-    const result = await client.fetch(query, { start, end });
+    const result = await client.fetch(query, { start, end, lang });
     return result || [];
   } catch (e) {
     console.error('Error fetching challenges:', e);
@@ -432,8 +441,8 @@ export const getChallenges = async (
 };
 
 // Fetch single challenge by slug
-export const getChallengeBySlug = async (slug: string): Promise<CodingChallenge | null> => {
-  const query = `*[_type == "codingChallenge" && slug.current == $slug][0] {
+export const getChallengeBySlug = async (slug: string, lang: string = 'en'): Promise<CodingChallenge | null> => {
+  const query = `*[_type == "codingChallenge" && slug.current == $slug && (language == $lang || (!defined(language) && $lang == "en"))][0] {
     _id,
     title,
     slug,
@@ -452,8 +461,9 @@ export const getChallengeBySlug = async (slug: string): Promise<CodingChallenge 
     category
   }`;
 
+  const normalizedLang = normalizeLang(lang);
   try {
-    const result = await client.fetch(query, { slug });
+    const result = await client.fetch(query, { slug, lang: normalizedLang });
     return result || null;
   } catch (e) {
     console.error('Error fetching challenge:', e);
@@ -462,10 +472,11 @@ export const getChallengeBySlug = async (slug: string): Promise<CodingChallenge 
 };
 
 // Get daily boss challenge
-export const getDailyChallenge = async (): Promise<CodingChallenge | null> => {
+export const getDailyChallenge = async (lang: string = 'en'): Promise<CodingChallenge | null> => {
+  const normalizedLang = normalizeLang(lang);
   // Get a random boss challenge or rotate based on date
   const today = new Date().toISOString().split('T')[0];
-  const query = `*[_type == "codingChallenge" && isBossChallenge == true] | order(_createdAt asc) {
+  const query = `*[_type == "codingChallenge" && isBossChallenge == true && (language == $lang || (!defined(language) && $lang == "en"))] | order(_createdAt asc) {
     _id,
     title,
     slug,
@@ -479,9 +490,9 @@ export const getDailyChallenge = async (): Promise<CodingChallenge | null> => {
   }`;
 
   try {
-    const challenges = await client.fetch(query);
+    const challenges = await client.fetch(query, { lang: normalizedLang });
     if (!challenges?.length) return null;
-    
+
     // Rotate based on day of year
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
     const index = dayOfYear % challenges.length;
@@ -493,21 +504,22 @@ export const getDailyChallenge = async (): Promise<CodingChallenge | null> => {
 };
 
 // Get challenge categories
-export const getChallengeCategories = async (): Promise<{ category: string; count: number }[]> => {
-  const query = `*[_type == "codingChallenge"] {
+export const getChallengeCategories = async (lang: string = 'en'): Promise<{ category: string; count: number }[]> => {
+  const normalizedLang = normalizeLang(lang);
+  const query = `*[_type == "codingChallenge" && (language == $lang || (!defined(language) && $lang == "en"))] {
     category
   }`;
 
   try {
-    const challenges = await client.fetch(query);
+    const challenges = await client.fetch(query, { lang: normalizedLang });
     const categoryCounts: Record<string, number> = {};
-    
+
     challenges.forEach((c: { category: string }) => {
       if (c.category) {
         categoryCounts[c.category] = (categoryCounts[c.category] || 0) + 1;
       }
     });
-    
+
     return Object.entries(categoryCounts)
       .map(([category, count]) => ({ category, count }))
       .sort((a, b) => b.count - a.count);
@@ -640,11 +652,11 @@ export const getUserSubmissionStats = async (userId: string): Promise<{
 
   try {
     const result = await client.fetch(query, { userId });
-    
+
     // Calculate streak and activity
     const submissions = result.submissions || [];
     const activityMap: Record<string, { count: number; accepted: number }> = {};
-    
+
     submissions.forEach((s: { createdAt: string; status: string }) => {
       const date = s.createdAt.split('T')[0];
       if (!activityMap[date]) {
@@ -663,7 +675,7 @@ export const getUserSubmissionStats = async (userId: string): Promise<{
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-      
+
       if (activityMap[dateStr]?.accepted > 0) {
         streak++;
       } else if (i > 0) {
@@ -779,12 +791,12 @@ export const addXp = async (profileId: string, xpAmount: number): Promise<void> 
       `*[_type == "userCodingProfile" && _id == $profileId][0] { xp, level }`,
       { profileId }
     );
-    
+
     if (!profile) return;
-    
+
     const newXp = (profile.xp || 0) + xpAmount;
     const newLevel = getLevelFromXp(newXp);
-    
+
     await writeClient
       .patch(profileId)
       .set({ xp: newXp, level: newLevel })
@@ -876,8 +888,8 @@ export const getUserRank = async (profileId: string): Promise<number> => {
 // ==================== LEARNING PATHS ====================
 
 // Get all learning paths
-export const getLearningPaths = async (): Promise<LearningPath[]> => {
-  const query = `*[_type == "learningPath"] | order(order asc) {
+export const getLearningPaths = async (lang: string = 'en'): Promise<LearningPath[]> => {
+  const query = `*[_type == "learningPath" && (language == $lang || (!defined(language) && $lang == "en"))] | order(order asc) {
     _id,
     title,
     slug,
@@ -908,8 +920,9 @@ export const getLearningPaths = async (): Promise<LearningPath[]> => {
     }
   }`;
 
+  const normalizedLang = normalizeLang(lang);
   try {
-    const result = await client.fetch(query);
+    const result = await client.fetch(query, { lang: normalizedLang });
     return result || [];
   } catch (e) {
     console.error('Error fetching learning paths:', e);
@@ -918,8 +931,8 @@ export const getLearningPaths = async (): Promise<LearningPath[]> => {
 };
 
 // Get single learning path
-export const getLearningPath = async (slug: string): Promise<LearningPath | null> => {
-  const query = `*[_type == "learningPath" && slug.current == $slug][0] {
+export const getLearningPath = async (slug: string, lang: string = 'en'): Promise<LearningPath | null> => {
+  const query = `*[_type == "learningPath" && slug.current == $slug && (language == $lang || (!defined(language) && $lang == "en"))][0] {
     _id,
     title,
     slug,
@@ -952,8 +965,9 @@ export const getLearningPath = async (slug: string): Promise<LearningPath | null
     }
   }`;
 
+  const normalizedLang = normalizeLang(lang);
   try {
-    const result = await client.fetch(query, { slug });
+    const result = await client.fetch(query, { slug, lang: normalizedLang });
     return result || null;
   } catch (e) {
     console.error('Error fetching learning path:', e);
@@ -987,7 +1001,7 @@ export const updateUserProgress = async (
   try {
     // Check if progress exists
     const existing = await getUserPathProgress(userId, pathId);
-    
+
     if (existing) {
       await writeClient
         .patch(existing._id)

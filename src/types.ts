@@ -35,6 +35,10 @@ export interface Author {
     github?: string;
     linkedin?: string;
   };
+  socialLinks?: Array<{
+    platform: string;
+    url: string;
+  }>;
 }
 
 export interface Category {
@@ -67,7 +71,7 @@ export interface Comment {
   post: { _ref: string };
   content: string;
   parentComment?: { _ref: string };
-  approved: boolean;
+  approved?: boolean;
   featured: boolean;
   createdAt: string;
   editedAt?: string;
@@ -95,6 +99,7 @@ export interface BlogPost {
   updatedDate?: string;
   tags?: string[];
   featured: boolean;
+  language?: string;
   image?: SanityImage | string;
   // Engagement fields
   viewCount: number;

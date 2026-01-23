@@ -3,19 +3,19 @@ import imageUrlBuilder from '@sanity/image-url';
 
 // Read client (no CDN for real-time data)
 export const client = createClient({
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
-  dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   useCdn: false, // Disabled for real-time view counts
-  apiVersion: import.meta.env.VITE_SANITY_API_VERSION || '2024-01-01',
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01',
 });
 
 // Write client (no CDN, requires token with write permissions)
 export const writeClient = createClient({
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
-  dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   useCdn: false, // Must be false for mutations
-  apiVersion: import.meta.env.VITE_SANITY_API_VERSION || '2024-01-01',
-  token: import.meta.env.VITE_SANITY_TOKEN, // Requires Editor/Admin token
+  apiVersion: process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01',
+  token: process.env.NEXT_PUBLIC_SANITY_TOKEN, // Requires Editor/Admin token
   ignoreBrowserTokenWarning: true,
 });
 

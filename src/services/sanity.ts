@@ -15,11 +15,18 @@ const normalizeSlug = (slug: any): string => {
   return typeof slug === 'string' ? slug : slug.current || '';
 };
 
+// Helper to normalize language code
+const normalizeLang = (lang: string = 'en'): string => {
+  if (!lang) return 'en';
+  return lang.split('-')[0].toLowerCase();
+};
+
 // ==================== BLOG POSTS ====================
 
 // Fetch all blog posts (list view)
-export const getAllPosts = async (): Promise<BlogPost[]> => {
-  const query = `*[_type == "blogPost"] | order(publishedDate desc) {
+export const getAllPosts = async (lang: string = 'en'): Promise<BlogPost[]> => {
+  const normalizedLang = normalizeLang(lang);
+  const query = `*[_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en"))] | order(publishedDate desc) {
     _id,
     title,
     slug,
@@ -37,7 +44,7 @@ export const getAllPosts = async (): Promise<BlogPost[]> => {
   }`;
 
   try {
-    const result = await client.fetch(query);
+    const result = await client.fetch(query, { lang: normalizedLang });
     return result || [];
   } catch (e) {
     console.error('Error fetching all posts:', e);
@@ -46,8 +53,9 @@ export const getAllPosts = async (): Promise<BlogPost[]> => {
 };
 
 // Fetch featured posts
-export const getFeaturedPost = async (): Promise<BlogPost | null> => {
-  const query = `*[_type == "blogPost" && featured == true] | order(publishedDate desc)[0] {
+export const getFeaturedPost = async (lang: string = 'en'): Promise<BlogPost | null> => {
+  const normalizedLang = normalizeLang(lang);
+  const query = `*[_type == "blogPost" && featured == true && (language == $lang || (!defined(language) && $lang == "en"))] | order(publishedDate desc)[0] {
     _id,
     title,
     slug,
@@ -65,7 +73,7 @@ export const getFeaturedPost = async (): Promise<BlogPost | null> => {
   }`;
 
   try {
-    const result = await client.fetch(query);
+    const result = await client.fetch(query, { lang: normalizedLang });
     return result || null;
   } catch (e) {
     console.error('Error fetching featured post:', e);
@@ -74,10 +82,11 @@ export const getFeaturedPost = async (): Promise<BlogPost | null> => {
 };
 
 // Fetch recent posts (non-featured)
-export const getRecentPosts = async (limit: number = 10, offset: number = 0): Promise<BlogPost[]> => {
+export const getRecentPosts = async (limit: number = 10, offset: number = 0, lang: string = 'en'): Promise<BlogPost[]> => {
+  const normalizedLang = normalizeLang(lang);
   const start = offset;
-  const end = offset + limit - 1;
-  const query = `*[_type == "blogPost"] | order(publishedDate desc)[$start...$end] {
+  const end = offset + limit;
+  const query = `*[_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en"))] | order(publishedDate desc)[$start...$end] {
     _id,
       title,
     slug,
@@ -95,7 +104,7 @@ export const getRecentPosts = async (limit: number = 10, offset: number = 0): Pr
   }`;
 
   try {
-    const result = await client.fetch(query, { start, end });
+    const result = await client.fetch(query, { start, end, lang: normalizedLang });
     return result || [];
   } catch (e) {
     console.error('Error fetching recent posts:', e);
@@ -104,10 +113,11 @@ export const getRecentPosts = async (limit: number = 10, offset: number = 0): Pr
 };
 
 // Get total count of posts
-export const getTotalPostsCount = async (): Promise<number> => {
-  const query = `count(*[_type == "blogPost"])`;
+export const getTotalPostsCount = async (lang: string = 'en'): Promise<number> => {
+  const normalizedLang = normalizeLang(lang);
+  const query = `count(*[_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en"))])`;
   try {
-    return await client.fetch(query);
+    return await client.fetch(query, { lang: normalizedLang });
   } catch (e) {
     console.error('Error fetching posts count:', e);
     return 0;
@@ -115,13 +125,16 @@ export const getTotalPostsCount = async (): Promise<number> => {
 };
 
 // Fetch single blog post by slug
-export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
+export const getPostBySlug = async (slug: string, lang: string = 'en'): Promise<BlogPost | null> => {
   if (!slug) {
     console.error('No slug provided to getPostBySlug');
     return null;
   }
 
-  const query = `*[_type == "blogPost" && slug.current == $slug][0] {
+  const decodedSlug = decodeURIComponent(slug);
+  const normalizedLang = normalizeLang(lang);
+
+  const query = `*[_type == "blogPost" && slug.current == $slug] | order(select(language == $lang => 1, 0) desc, publishedDate desc)[0] {
     _id,
     title,
     slug,
@@ -141,12 +154,13 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
     tags,
     "image": image.asset->url,
     "author": author-> { _id, name, slug, "image": image.asset->url, bio, social },
-    "categories": categories[]-> { _id, title, slug, color, description }
+    "categories": categories[]-> { _id, title, slug, color, description },
+    language
   }`;
 
   try {
-    console.log('Fetching post with slug:', slug);
-    const result = await client.fetch(query, { slug });
+    console.log('Fetching post with slug:', decodedSlug, 'lang:', normalizedLang);
+    const result = await client.fetch(query, { slug: decodedSlug, lang: normalizedLang });
     console.log('Sanity response:', result);
     return result || null;
   } catch (e) {
@@ -156,10 +170,11 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
 };
 
 // Fetch posts by category
-export const getPostsByCategory = async (categorySlug: string, limit: number = 10, offset: number = 0): Promise<BlogPost[]> => {
+export const getPostsByCategory = async (categorySlug: string, limit: number = 10, offset: number = 0, lang: string = 'en'): Promise<BlogPost[]> => {
+  const normalizedLang = normalizeLang(lang);
   const start = offset;
-  const end = offset + limit - 1;
-  const query = `*[_type == "blogPost" && $categorySlug in categories[]->slug.current] | order(publishedDate desc)[$start...$end] {
+  const end = offset + limit;
+  const query = `*[_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en")) && $categorySlug in categories[]->slug.current] | order(publishedDate desc)[$start...$end] {
     _id,
     title,
     slug,
@@ -176,7 +191,7 @@ export const getPostsByCategory = async (categorySlug: string, limit: number = 1
   }`;
 
   try {
-    const result = await client.fetch(query, { categorySlug, start, end });
+    const result = await client.fetch(query, { categorySlug, start, end, lang: normalizedLang });
     return result || [];
   } catch (e) {
     console.error('Error fetching posts by category:', e);
@@ -185,10 +200,10 @@ export const getPostsByCategory = async (categorySlug: string, limit: number = 1
 };
 
 // Get total count of posts in category
-export const getCategoryPostsCount = async (categorySlug: string): Promise<number> => {
-  const query = `count(*[_type == "blogPost" && $categorySlug in categories[]->slug.current])`;
+export const getCategoryPostsCount = async (categorySlug: string, lang: string = 'en'): Promise<number> => {
+  const query = `count(*[_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en")) && $categorySlug in categories[]->slug.current])`;
   try {
-    return await client.fetch(query, { categorySlug });
+    return await client.fetch(query, { categorySlug, lang });
   } catch (e) {
     console.error('Error fetching category posts count:', e);
     return 0;
@@ -196,10 +211,10 @@ export const getCategoryPostsCount = async (categorySlug: string): Promise<numbe
 };
 
 // Fetch trending posts (by view count)
-export const getTrendingPosts = async (limit: number = 6, offset: number = 0): Promise<BlogPost[]> => {
+export const getTrendingPosts = async (limit: number = 6, offset: number = 0, lang: string = 'en'): Promise<BlogPost[]> => {
   const start = offset;
   const end = offset + limit - 1;
-  const query = `*[_type == "blogPost"] | order(viewCount desc)[$start...$end] {
+  const query = `*[_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en"))] | order(viewCount desc)[$start...$end] {
     _id,
     title,
     slug,
@@ -216,7 +231,7 @@ export const getTrendingPosts = async (limit: number = 6, offset: number = 0): P
   }`;
 
   try {
-    const result = await client.fetch(query, { start, end });
+    const result = await client.fetch(query, { start, end, lang });
     return result || [];
   } catch (e) {
     console.error('Error fetching trending posts:', e);
@@ -229,7 +244,8 @@ export type TrendingTimeFilter = 'today' | 'week' | 'month' | 'all';
 
 export const getTrendingPostsByTime = async (
   timeFilter: TrendingTimeFilter = 'all',
-  limit: number = 4
+  limit: number = 4,
+  lang: string = 'en'
 ): Promise<BlogPost[]> => {
   // Calculate date threshold based on filter
   const now = new Date();
@@ -254,7 +270,8 @@ export const getTrendingPostsByTime = async (
     ? `&& publishedDate >= "${dateThreshold}"`
     : '';
 
-  const query = `*[_type == "blogPost" ${dateFilter}] | order(coalesce(likeCount, 0) desc)[0...${limit}] {
+  const normalizedLang = normalizeLang(lang);
+  const query = `*[_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en")) ${dateFilter}] | order(coalesce(likeCount, 0) desc)[0...${limit}] {
     _id,
     title,
     slug,
@@ -271,7 +288,7 @@ export const getTrendingPostsByTime = async (
   }`;
 
   try {
-    const result = await client.fetch(query);
+    const result = await client.fetch(query, { lang: normalizedLang });
     return result || [];
   } catch (e) {
     console.error('Error fetching trending posts by time:', e);
@@ -291,38 +308,42 @@ export interface SearchFilters {
   category?: string;  // category slug
   dateFilter?: SearchDateFilter;
   tags?: string[];
+  lang?: string;
 }
 
 export const searchPosts = async (
   termOrFilters: string | SearchFilters,
   limit: number = 10,
   offset: number = 0,
-  sort: SearchSortOption = 'relevance'
+  sort: SearchSortOption = 'relevance',
+  lang: string = 'en'
 ): Promise<BlogPost[]> => {
   // Support both old signature and new filters object
   const filters: SearchFilters = typeof termOrFilters === 'string'
-    ? { term: termOrFilters, limit, offset, sort }
+    ? { term: termOrFilters, limit, offset, sort, lang }
     : termOrFilters;
 
   const {
-    term,
+    term = '',
     limit: searchLimit = 10,
     offset: searchOffset = 0,
     sort: searchSort = 'relevance',
     category,
     dateFilter = 'all',
-    tags = []
+    tags = [],
+    lang: searchLang = 'en'
   } = filters;
 
+  const normalizedLang = normalizeLang(searchLang);
   const start = searchOffset;
-  const end = searchOffset + searchLimit - 1;
+  const end = searchOffset + searchLimit;
 
   // Build filter conditions
-  let filterConditions = '_type == "blogPost"';
+  let filterConditions = '_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en"))';
 
   // Term search (title, excerpt, tags)
   if (term) {
-    filterConditions += ' && (title match $term || excerpt match $term || $term in tags)';
+    filterConditions += ' && (title match $term || excerpt match $term || tags match $term)';
   }
 
   // Category filter
@@ -356,7 +377,7 @@ export const searchPosts = async (
 
   // Tags filter (any of the selected tags)
   if (tags.length > 0) {
-    const tagConditions = tags.map(tag => `"${tag}" in tags`).join(' || ');
+    const tagConditions = tags.map((tag, i) => `tags match $tag${i}`).join(' || ');
     filterConditions += ` && (${tagConditions})`;
   }
 
@@ -393,12 +414,20 @@ export const searchPosts = async (
   }`;
 
   try {
-    const result = await client.fetch(query, {
+    const params: any = {
       term: term ? `*${term}*` : '',
       start,
       end,
-      category: category || ''
+      category: category || '',
+      lang: normalizedLang
+    };
+
+    // Add tag parameters for case-insensitive match
+    tags.forEach((tag, i) => {
+      params[`tag${i}`] = tag;
     });
+
+    const result = await client.fetch(query, params);
     return result || [];
   } catch (e) {
     console.error('Error searching posts:', e);
@@ -408,13 +437,13 @@ export const searchPosts = async (
 
 // Get total count for search results
 export const getSearchResultsCount = async (filters: SearchFilters): Promise<number> => {
-  const { term, category, dateFilter = 'all', tags = [] } = filters;
+  const { term, category, dateFilter = 'all', tags = [], lang = 'en' } = filters;
 
   // Build filter conditions
-  let filterConditions = '_type == "blogPost"';
+  let filterConditions = '_type == "blogPost" && (language == $lang || (!defined(language) && $lang == "en"))';
 
   if (term) {
-    filterConditions += ' && (title match $term || excerpt match $term || $term in tags)';
+    filterConditions += ' && (title match $term || excerpt match $term || tags match $term)';
   }
 
   if (category && category !== 'all') {
@@ -445,20 +474,50 @@ export const getSearchResultsCount = async (filters: SearchFilters): Promise<num
   }
 
   if (tags.length > 0) {
-    const tagConditions = tags.map(tag => `"${tag}" in tags`).join(' || ');
+    const tagConditions = tags.map((tag, i) => `tags match $tag${i}`).join(' || ');
     filterConditions += ` && (${tagConditions})`;
   }
 
   const query = `count(*[${filterConditions}])`;
 
   try {
-    return await client.fetch(query, {
+    const normalizedLang = normalizeLang(lang);
+    const params: any = {
       term: term ? `*${term}*` : '',
-      category: category || ''
+      category: category || '',
+      lang: normalizedLang
+    };
+
+    // Add tag parameters for case-insensitive match
+    tags.forEach((tag, i) => {
+      params[`tag${i}`] = tag;
     });
+
+    return await client.fetch(query, params);
   } catch (e) {
     console.error('Error counting search results:', e);
     return 0;
+  }
+};
+
+/**
+ * Find linked translations for a specific document
+ * This uses the translation.metadata documents created by @sanity/document-internationalization
+ */
+export const getDocumentTranslations = async (documentId: string): Promise<any[]> => {
+  const query = `*[_type == "translation.metadata" && references($documentId)][0]{
+    translations[]{
+      "_key": _key,
+      "value": value->{ _id, _type, slug, language, title }
+    }
+  }`;
+
+  try {
+    const result = await client.fetch(query, { documentId });
+    return result?.translations || [];
+  } catch (e) {
+    console.error('Error fetching document translations:', e);
+    return [];
   }
 };
 
@@ -524,13 +583,14 @@ export const getSearchSuggestions = async (term: string, limit: number = 6): Pro
 // ==================== TAGS ====================
 
 // Fetch all unique tags with counts
-export const getPopularTags = async (limit: number = 10): Promise<{ tag: string; count: number }[]> => {
-  const query = `*[_type == "blogPost" && defined(tags)] {
+export const getPopularTags = async (limit: number = 10, lang: string = 'en'): Promise<{ tag: string; count: number }[]> => {
+  const normalizedLang = normalizeLang(lang);
+  const query = `*[_type == "blogPost" && defined(tags) && (language == $lang || (!defined(language) && $lang == "en"))] {
     tags
   }`;
 
   try {
-    const posts = await client.fetch(query);
+    const posts = await client.fetch(query, { lang: normalizedLang });
 
     // Aggregate tags and count occurrences (case-insensitive)
     const tagCounts: Record<string, { displayName: string; count: number }> = {};
@@ -583,8 +643,9 @@ export const getAuthorBySlug = async (slug: string): Promise<Author | null> => {
 };
 
 // Fetch posts by author
-export const getPostsByAuthorId = async (authorId: string): Promise<BlogPost[]> => {
-  const query = `*[_type == "blogPost" && author._ref == $authorId] | order(publishedDate desc) {
+export const getPostsByAuthorId = async (authorId: string, lang: string = 'en'): Promise<BlogPost[]> => {
+  const normalizedLang = normalizeLang(lang);
+  const query = `*[_type == "blogPost" && author._ref == $authorId && (language == $lang || (!defined(language) && $lang == "en"))] | order(publishedDate desc) {
     _id,
     title,
     slug,
@@ -601,7 +662,7 @@ export const getPostsByAuthorId = async (authorId: string): Promise<BlogPost[]> 
   }`;
 
   try {
-    const result = await client.fetch(query, { authorId });
+    const result = await client.fetch(query, { authorId, lang: normalizedLang });
     return result || [];
   } catch (e) {
     console.error('Error fetching posts by author:', e);
@@ -612,18 +673,19 @@ export const getPostsByAuthorId = async (authorId: string): Promise<BlogPost[]> 
 // ==================== CATEGORIES ====================
 
 // Fetch all categories with post counts
-export const getCategories = async (): Promise<(Category & { count: number })[]> => {
+export const getCategories = async (lang: string = 'en'): Promise<(Category & { count: number })[]> => {
+  const normalizedLang = normalizeLang(lang);
   const query = `*[_type == "category"] | order(title asc) {
     _id,
     title,
     slug,
     description,
     color,
-    "count": count(*[_type == "blogPost" && references(^._id)])
+    "count": count(*[_type == "blogPost" && references(^._id) && (language == $lang || (!defined(language) && $lang == "en"))])
   }`;
 
   try {
-    const result = await client.fetch(query);
+    const result = await client.fetch(query, { lang: normalizedLang });
     return result || [];
   } catch (e) {
     console.error('Error fetching categories:', e);
@@ -780,7 +842,7 @@ export const createComment = async (
       .inc({ commentCount: 1 })
       .commit();
 
-    return comment as Comment;
+    return comment as unknown as Comment;
   } catch (e) {
     console.error('Error creating comment:', e);
     return null;
@@ -924,14 +986,16 @@ export const toggleSavedPost = async (postId: string, subscriberId: string): Pro
 // ==================== ARCHIVE / PAST POSTS ====================
 
 // Get past newsletter posts (older than 1 week)
-export const getArchivePosts = async (limit: number = 12, offset: number = 0): Promise<BlogPost[]> => {
+export const getArchivePosts = async (limit: number = 12, offset: number = 0, lang: string = 'en'): Promise<BlogPost[]> => {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
+  const normalizedLang = normalizeLang(lang);
   const start = offset;
-  const end = offset + limit - 1;
+  const end = offset + limit;
+  const dateThreshold = oneWeekAgo.toISOString();
 
-  const query = `*[_type == "blogPost" && publishedDate < $dateThreshold] | order(publishedDate desc)[$start...$end] {
+  const query = `*[_type == "blogPost" && publishedDate < $dateThreshold && (language == $lang || (!defined(language) && $lang == "en"))] | order(publishedDate desc)[$start...$end] {
     _id,
     title,
     slug,
@@ -948,12 +1012,7 @@ export const getArchivePosts = async (limit: number = 12, offset: number = 0): P
   }`;
 
   try {
-    const result = await client.fetch(query, {
-      dateThreshold: oneWeekAgo.toISOString(),
-      start,
-      end
-    });
-    return result || [];
+    return await client.fetch(query, { dateThreshold, start, end, lang: normalizedLang });
   } catch (e) {
     console.error('Error fetching archive posts:', e);
     return [];

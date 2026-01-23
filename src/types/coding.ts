@@ -43,12 +43,15 @@ export interface Submission {
   _type: 'submission';
   challenge: {
     _ref: string;
+    _type?: string;
     title?: string;
     slug?: { current: string };
     difficulty?: Difficulty;
+    tags?: string[];
   };
   user: {
     _ref: string;
+    _type?: string;
     name?: string;
   };
   code: string;
@@ -70,6 +73,7 @@ export interface UserCodingProfile {
   _type: 'userCodingProfile';
   subscriber: {
     _ref: string;
+    _type?: string;
     name?: string;
     email?: string;
   };
@@ -133,8 +137,13 @@ export interface Lesson {
   content: any[]; // Portable Text with code blocks and visualizations
   xpReward: number;
   estimatedMinutes: number;
-  challenge?: {
+  challenge?: CodingChallenge | {
     _ref: string;
+    title?: string;
+    slug?: { current: string };
+    starterCode?: any[];
+    testCases?: any[];
+    _id?: string;
   };
   quiz?: {
     question: string;
@@ -200,13 +209,13 @@ export const getLevelFromXp = (xp: number): number => {
   let level = 1;
   let xpNeeded = 100;
   let totalXp = 0;
-  
+
   while (totalXp + xpNeeded <= xp) {
     totalXp += xpNeeded;
     level++;
     xpNeeded = Math.floor(100 * Math.pow(1.5, level - 1));
   }
-  
+
   return level;
 };
 

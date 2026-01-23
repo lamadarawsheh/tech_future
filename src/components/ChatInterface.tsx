@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { sendMessage, getQuickSuggestions, ChatMessage } from '../services/ai';
 
 interface Message {
@@ -19,15 +19,21 @@ interface Message {
 export const ChatInterface: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { isAiModalOpen, toggleAiModal, isDarkMode } = useStore();
-  const navigate = useNavigate();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      text: t('chat.welcome'),
-      timestamp: new Date()
-    }
-  ]);
+  const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setMessages([
+      {
+        id: 'welcome',
+        role: 'assistant',
+        text: t('chat.welcome'),
+        timestamp: new Date()
+      }
+    ]);
+  }, []);
 
   // Update welcome message when language changes
   useEffect(() => {
@@ -41,7 +47,7 @@ export const ChatInterface: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const quickSuggestions = getQuickSuggestions();
+  const quickSuggestions = getQuickSuggestions(i18n.language);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -85,7 +91,7 @@ export const ChatInterface: React.FC = () => {
     setShowSuggestions(false);
 
     try {
-      const response = await sendMessage(getMessageHistory(), messageText);
+      const response = await sendMessage(getMessageHistory(), messageText, i18n.language);
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -115,7 +121,7 @@ export const ChatInterface: React.FC = () => {
 
   const handleArticleClick = (slug: string) => {
     toggleAiModal();
-    navigate(`/article/${slug}`);
+    router.push(`/article/${slug}`);
   };
 
   const clearChat = () => {
@@ -151,8 +157,8 @@ export const ChatInterface: React.FC = () => {
 
       {/* Chat Window */}
       <div className={`relative w-full sm:w-[420px] h-[85vh] sm:h-[650px] rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pointer-events-auto overflow-hidden ${isDarkMode
-          ? 'bg-slate-900 border border-slate-700/50'
-          : 'bg-white border border-slate-200'
+        ? 'bg-slate-900 border border-slate-700/50'
+        : 'bg-white border border-slate-200'
         }`}
         style={{
           animation: 'slideUp 0.3s ease-out'
@@ -182,8 +188,8 @@ export const ChatInterface: React.FC = () => {
             <button
               onClick={clearChat}
               className={`p-2 rounded-xl transition-colors ${isDarkMode
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
+                ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               title="Clear chat"
             >
@@ -192,8 +198,8 @@ export const ChatInterface: React.FC = () => {
             <button
               onClick={toggleAiModal}
               className={`p-2 rounded-xl transition-colors ${isDarkMode
-                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
+                ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
                 }`}
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
@@ -221,10 +227,10 @@ export const ChatInterface: React.FC = () => {
 
                 {/* Message Bubble */}
                 <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${msg.role === 'user'
-                    ? 'bg-gradient-to-r from-primary to-secondary text-white rounded-br-md shadow-lg shadow-primary/20'
-                    : isDarkMode
-                      ? 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-md'
-                      : 'bg-white text-slate-700 border border-slate-200 rounded-bl-md shadow-sm'
+                  ? 'bg-gradient-to-r from-primary to-secondary text-white rounded-br-md shadow-lg shadow-primary/20'
+                  : isDarkMode
+                    ? 'bg-slate-800 text-slate-200 border border-slate-700 rounded-bl-md'
+                    : 'bg-white text-slate-700 border border-slate-200 rounded-bl-md shadow-sm'
                   }`}>
                   <div dangerouslySetInnerHTML={{ __html: formatMessage(msg.text) }} />
 
@@ -236,8 +242,8 @@ export const ChatInterface: React.FC = () => {
                           key={idx}
                           onClick={() => handleArticleClick(article.slug)}
                           className={`w-full text-left p-2.5 rounded-xl transition-all ${isDarkMode
-                              ? 'bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50'
-                              : 'bg-slate-50 hover:bg-slate-100 border border-slate-200'
+                            ? 'bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50'
+                            : 'bg-slate-50 hover:bg-slate-100 border border-slate-200'
                             }`}
                         >
                           <div className="flex items-start gap-2">
@@ -270,8 +276,8 @@ export const ChatInterface: React.FC = () => {
           {isLoading && (
             <div className="flex justify-start">
               <div className={`rounded-2xl rounded-bl-md px-4 py-3 ${isDarkMode
-                  ? 'bg-slate-800 border border-slate-700'
-                  : 'bg-white border border-slate-200 shadow-sm'
+                ? 'bg-slate-800 border border-slate-700'
+                : 'bg-white border border-slate-200 shadow-sm'
                 }`}>
                 <div className="flex gap-1.5 items-center">
                   <span className={`w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s] ${isDarkMode ? 'bg-primary' : 'bg-primary'}`}></span>
@@ -301,8 +307,8 @@ export const ChatInterface: React.FC = () => {
                   key={idx}
                   onClick={() => handleSuggestionClick(suggestion)}
                   className={`px-3 py-1.5 text-xs rounded-full transition-all ${isDarkMode
-                      ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 border border-slate-200'
+                    ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 border border-slate-200'
                     }`}
                 >
                   {suggestion}
@@ -324,8 +330,8 @@ export const ChatInterface: React.FC = () => {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t('chat.placeholder')}
                 className={`w-full h-12 rounded-xl border-2 pl-4 pr-12 text-sm transition-all ${isDarkMode
-                    ? 'bg-slate-800 border-slate-700 focus:border-primary focus:bg-slate-800 text-white placeholder:text-slate-500'
-                    : 'bg-slate-50 border-slate-200 focus:border-primary focus:bg-white text-slate-900 placeholder:text-slate-400'
+                  ? 'bg-slate-800 border-slate-700 focus:border-primary focus:bg-slate-800 text-white placeholder:text-slate-500'
+                  : 'bg-slate-50 border-slate-200 focus:border-primary focus:bg-white text-slate-900 placeholder:text-slate-400'
                   } focus:ring-2 focus:ring-primary/20 focus:outline-none`}
               />
               <button

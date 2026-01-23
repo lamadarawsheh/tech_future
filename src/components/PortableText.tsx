@@ -68,9 +68,9 @@ const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }
   const lines = code.split('\n');
 
   return (
-    <div className="my-6 rounded-xl overflow-hidden bg-[#0d1117] border border-slate-700/50 shadow-xl">
+    <div className="my-6 rounded-xl overflow-hidden bg-white dark:bg-[#0d1117] border border-slate-200 dark:border-slate-700/50 shadow-sm dark:shadow-xl">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-[#161b22] border-b border-slate-700/50">
+      <div className="flex items-center justify-between px-4 py-3 bg-slate-100 dark:bg-[#161b22] border-b border-slate-200 dark:border-slate-700/50">
         <div className="flex items-center gap-3">
           {/* Traffic lights */}
           <div className="flex items-center gap-1.5">
@@ -109,17 +109,17 @@ const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }
       </div>
 
       {/* Code content */}
-      <div className="relative overflow-x-auto">
-        <pre className="p-4 text-sm leading-relaxed">
+      <div className="relative overflow-x-auto" dir="ltr" lang="en">
+        <pre className="p-4 text-sm leading-relaxed font-mono">
           <code className="block font-mono">
             {lines.map((line, i) => (
               <div key={i} className="table-row group">
                 {/* Line number */}
-                <span className="table-cell pr-4 text-right text-slate-600 select-none w-[3ch] text-xs">
+                <span className="table-cell pr-4 text-right text-slate-400 dark:text-slate-600 select-none w-[3ch] text-xs font-mono">
                   {i + 1}
                 </span>
                 {/* Line content */}
-                <span className="table-cell text-slate-200 group-hover:bg-slate-800/30 pl-4 -ml-4 w-full">
+                <span className="table-cell text-slate-800 dark:text-slate-100 group-hover:bg-slate-100 dark:group-hover:bg-slate-800/30 pl-4 -ml-4 w-full font-mono whitespace-pre">
                   {highlightSyntax(line, language)}
                 </span>
               </div>
@@ -129,7 +129,7 @@ const CodeBlock: React.FC<{ code: string; language?: string; filename?: string }
       </div>
 
       {/* Footer with line count */}
-      <div className="px-4 py-2 bg-[#161b22] border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-500">
+      <div className="px-4 py-2 bg-slate-100 dark:bg-[#161b22] border-t border-slate-200 dark:border-slate-700/50 flex items-center justify-between text-xs text-slate-500">
         <span>{lines.length} {t('portableText.lines')}</span>
         <span className="flex items-center gap-1">
           <span className="material-symbols-outlined text-[14px]">code</span>
@@ -190,6 +190,8 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
             return (
               <code
                 key={i}
+                dir="ltr"
+                lang="en"
                 className="font-mono text-sm bg-slate-100 dark:bg-slate-800 text-primary px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700"
               >
                 {child.text}
